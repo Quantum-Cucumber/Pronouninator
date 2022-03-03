@@ -1,0 +1,55 @@
+:root {
+    --body: #191919;
+    --primary: #2D4263;
+    --secondary: #C84B31;
+    --text: #ECDBBA;
+}
+
+html, body {
+    margin: 0 !important;
+    background-color: var(--body);
+    color: var(--text);
+}
+
+body {
+    display: flex;
+    flex-direction: row;
+    font-size: 1.5em;
+}
+#options {
+    flex: none;
+    max-width: 20%;
+    width: 200px;
+    padding: 0.5em;
+}
+#body {
+    flex: 1 1 auto;
+    box-sizing: border-box;
+    padding: 2em;
+}
+
+#options > * {
+    margin: 0.2em 0;
+}
+#options > select {
+    background-color: var(--primary);
+    border: none;
+    border-radius: 0.2em;
+    color: inherit;
+
+    width: 100%;
+    font-size: inherit;
+    padding: 0;
+}
+#options > input[type=text] {
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid var(--primary);
+    color: inherit;
+
+    width: 100%;
+    font-size: inherit;
+}
+#options > input[type=text]:focus {
+    outline: none;
+}
