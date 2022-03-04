@@ -2,22 +2,37 @@
 <html>
     <head>
         <title>Pronoun Practice</title>
-        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="index.css" />
         <script src="index.js"></script>
     </head>
     <body>
-        <div id="options">
-            <select id="presets" onchange="selectPreset(this)">
+        <div class="options">
+            <select class="dropdown" id="presets" onchange="selectPreset(this)">
+                <option value="" selected disabled hidden>--Presets--</option>
                 <option value="he">He/Him</option>
                 <option value="she">She/Her</option>
                 <option value="they">They/Them</option>
+                <option value="it">It/Its</option>
+                <option value="xe">Xe/Xem</option>
             </select>
-            <input type="text" id="subjective" placeholder="Subjective">
-            <input type="text" id="objective" placeholder="Objective">
-            <input type="text" id="possessive" placeholder="Possessive">
-            <input type="text" id="reflexive" placeholder="Reflexive">
+            <input class="options__textbox" type="text" id="subjective" placeholder="Subjective" />
+            <input class="options__textbox" type="text" id="objective" placeholder="Objective" />
+            <input class="options__textbox" type="text" id="possessive" placeholder="Possessive" />
+            <input class="options__textbox" type="text" id="possessivePlural" placeholder="Possessive (Plural)" />
+            <input class="options__textbox" type="text" id="reflexive" placeholder="Reflexive" />
+
+            <div class="options__small">
+                <input type="radio" name="singular" value="singular" id="singular" />
+                <label for="singular">Singular</label>
+            </div>
+            <div class="options__small">
+                <input type="radio" name="singular" value="plural" id="plural" />
+                <label for="plural">Plural</label>
+            </div>
+            <br />
+            <button class="button options__select">Use These Pronouns!</button>
         </div>
-        <div id="body">
+        <div class="body">
             nya
         </div>
     </body>
