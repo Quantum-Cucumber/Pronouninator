@@ -14,11 +14,11 @@
             </select>
             
             <div id="custom" style="display: none;">
-                <input class="options__textbox" type="text" id="subjective" placeholder="Subjective" />
-                <input class="options__textbox" type="text" id="objective" placeholder="Objective" />
-                <input class="options__textbox" type="text" id="possessive" placeholder="Possessive" />
-                <input class="options__textbox" type="text" id="possessivePlural" placeholder="Possessive (Plural)" />
-                <input class="options__textbox" type="text" id="reflexive" placeholder="Reflexive" />
+                <input class="options__textbox" type="text" id="subjective" placeholder="Subjective" title="Subjective" />
+                <input class="options__textbox" type="text" id="objective" placeholder="Objective" title="Objective" />
+                <input class="options__textbox" type="text" id="possessiveDeterminer" placeholder="Possessive Determiner" title="Possessive Determiner" />
+                <input class="options__textbox" type="text" id="possessive" placeholder="Possessive" title="Possessive" />
+                <input class="options__textbox" type="text" id="reflexive" placeholder="Reflexive" title="Reflexive" />
 
                 <div class="options__small">
                     <input type="radio" name="verbs" value="singular" id="singular" />
@@ -40,8 +40,8 @@
         </div>
         <div class="body">
             <div class="body__header">
-                <div class="body__header__tab body__header__tab--selected" onClick="selectTab(this)" data-name="examples">Examples</div>
-                <div class="body__header__tab" onClick="selectTab(this)" data-name="practice">Practice</div>
+                <div class="body__header__tab body__header__tab--selected" onClick="selectTab(this)" data-name="examples" tabindex="0">Examples</div>
+                <div class="body__header__tab" onClick="selectTab(this)" data-name="practice"  tabindex="0">Practice</div>
             </div>
             <div class="body__page" id="page"></div>
         </div>

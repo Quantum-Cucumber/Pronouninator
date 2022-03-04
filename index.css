@@ -49,7 +49,7 @@ html, body {
 body {
     display: flex;
     flex-direction: row;
-    font-size: 25px;
+    font-size: clamp(2.5vh, 1.8rem, 5vw);  /* Honestly these values don't mean much. */
 }
 .options {
     flex: none;
@@ -101,6 +101,9 @@ body {
 }
 .options__textbox:focus {
     outline: none;
+}
+.options__textbox::placeholder {
+    font-size: 0.6em;
 }
 
 .options__small {

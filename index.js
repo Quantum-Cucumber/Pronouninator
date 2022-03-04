@@ -1,4 +1,4 @@
-const PRONOUNFIELDS = ["subjective", "objective", "possessive", "possessivePlural", "reflexive"]
+const PRONOUNFIELDS = ["subjective", "objective", "possessiveDeterminer", "possessive", "reflexive"]
 const VERB_REGEX = /\{(.+)\/(.+)\}/gi;
 
 
@@ -57,6 +57,7 @@ function onLoad() {
         const preset = params.get("preset");
         document.getElementById("presets").value = preset;
         selectPreset(preset);
+        setTitle();
         updatePage();
 
         return;
@@ -84,7 +85,6 @@ function onLoad() {
 
 function getUrl() {
     /* Builds the sharable url */
-    // TODO: Set title
 
     const baseUrl = window.location.href.split("?")[0];
     const params = [];
@@ -114,6 +114,20 @@ function getUrl() {
     return baseUrl + "?" + params.join("&");
 }
 
+function setTitle() {
+    function getPartString(part) {
+        let value = document.getElementById(part).value;
+        // Lowercase then capitalise the first character
+        return value.toLowerCase().replace(/^\w/, char => char.toUpperCase());
+    }
+
+    const titleSuffix = document.title.split(" | ").pop();
+    const subjective = getPartString("subjective");
+    const objective = getPartString("objective");
+    const possessive = getPartString("possessive");
+    document.title = `${subjective}/${objective}/${possessive} | ${titleSuffix}`;
+}
+
 function copyUrl() {
     const url = getUrl();
     navigator.clipboard.writeText(url);
@@ -140,6 +154,8 @@ function usePronouns() {
 
     const url = getUrl();
     window.history.pushState({}, "", url);
+
+    setTitle();
 
     updatePage();
 }
@@ -243,7 +259,7 @@ function populateExamples() {
     selectPrompts().forEach((prompt) => {
         // find/replace with the pronoun fields
         PRONOUNFIELDS.forEach(field => {
-            const value = document.getElementById(field).value;
+            const value = document.getElementById(field).value.toLowerCase();
             prompt = prompt.replace(`{${field}}`, value);
         })
 
