@@ -3,17 +3,13 @@
     <head>
         <title>Pronoun Practice</title>
         <link rel="stylesheet" href="index.css" />
+        <script src="data.js"></script>
         <script src="index.js"></script>
     </head>
     <body onload="onLoad()">
         <div class="options">
             <select class="dropdown" id="presets" onchange="selectPreset(this.value)">
-                <option value="select" selected disabled hidden>--Presets--</option>
-                <option value="he">He/Him</option>
-                <option value="she">She/Her</option>
-                <option value="they">They/Them</option>
-                <option value="it">It/Its</option>
-                <option value="xe">Xe/Xem</option>
+                <option value="select" selected disabled hidden>--Select--</option>
                 <option value="custom">Custom</option>
             </select>
             
@@ -25,24 +21,29 @@
                 <input class="options__textbox" type="text" id="reflexive" placeholder="Reflexive" />
 
                 <div class="options__small">
-                    <input type="radio" name="singular" value="singular" id="singular" />
+                    <input type="radio" name="verbs" value="singular" id="singular" />
                     <label for="singular">Singular</label>
                 </div>
                 <div class="options__small">
-                    <input type="radio" name="singular" value="plural" id="plural" />
+                    <input type="radio" name="verbs" value="plural" id="plural" />
                     <label for="plural">Plural</label>
                 </div>
             </div>
             <br />
             <div class="options__buttons">
-                <button class="button options__buttons__use">Use These Pronouns!</button>
+                <button class="button options__buttons__use" onclick="usePronouns();">Use These Pronouns!</button>
                 <button class="button options__buttons__share" onclick="copyUrl()" title="Share these pronouns">
-                    <img src="res/share-variant.svg">
+                    <img src="res/share-variant.svg" alt="Share">
                 </button>
             </div>
+            <div id="error" class="error"></div>
         </div>
         <div class="body">
-            nya
+            <div class="body__header">
+                <div class="body__header__tab body__header__tab--selected" onClick="selectTab(this)" data-name="examples">Examples</div>
+                <div class="body__header__tab" onClick="selectTab(this)" data-name="practice">Practice</div>
+            </div>
+            <div class="body__page" id="page"></div>
         </div>
     </body>
 </html>

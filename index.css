@@ -1,15 +1,20 @@
-/* Generic styles */
+/* --- Generic styles --- */
 
 :root {
-    --body: #191919;
+    --bg: #191919;
+    --bg-secondary: #3A3B3C;
     --primary: #2D4263;
     --secondary: #C84B31;
-    --text: #ECDBBA;
+    --text: #FFF;
+    --error: var(--secondary);
 }
 
 html, body {
     margin: 0 !important;
-    background-color: var(--body);
+    width: 100%;
+    height: 100%;
+
+    background-color: var(--bg);
     color: var(--text);
     font-family: Arial, Helvetica, sans-serif;
 }
@@ -36,27 +41,27 @@ html, body {
 
     width: 100%;
     font-size: inherit;
-    padding: 0;
+    padding: 0.1em 0.2em;
 }
 
-/* Layout */
+/* --- Layout --- */
 
 body {
     display: flex;
     flex-direction: row;
-    font-size: 1.5em;
+    font-size: 25px;
 }
 .options {
     flex: none;
     max-width: 30%;
     width: 250px;
     box-sizing: border-box;
-    padding: 0.5em;
+    padding: 0.8em;
 }
 .body {
     flex: 1 1 auto;
     box-sizing: border-box;
-    padding: 2em;
+    padding: 0.8em 2em;
 }
 
 @media only screen and (orientation: portrait) {
@@ -75,9 +80,13 @@ body {
     }
 }
 
-/* Specific styles */
+/* --- Specific styles --- */
 
+/* Options panel */
 .options > * {
+    margin: 0.2em 0;
+}
+.options > div > * {
     margin: 0.2em 0;
 }
 
@@ -111,11 +120,56 @@ body {
     flex: 1 1 auto;
 }
 .options__buttons__share {
+    /* TODO: Ensure this is a square */
     flex: none;
     padding: 0.4em;
 }
 .options__buttons__share > img {
+    display: block;
+    margin: auto;
     width: 100%;
-    height: 100%;
-    aspect-ratio: 1;
+}
+
+.error {
+    color: var(--error);
+    font-size: 0.8em;
+}
+
+/* Body */
+.body {
+    display: flex;
+    flex-direction: column;
+}
+
+.body__header {
+    flex: none;
+    border-bottom: 2px solid var(--secondary);
+    user-select: none;
+}
+.body__header__tab {
+    min-width: 150px;
+    max-width: 50%;
+    display: inline-block;
+
+    padding: 0.2em 0.5em;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+.body__header__tab--selected {
+    border-radius: 0.2em 0.2em 0 0;
+    background-color: var(--secondary);
+}
+
+.body__page {
+    flex: 1;
+    overflow: auto;
+    padding: 0.6em 0.5em;
+}
+
+.card {
+    background-color: var(--bg-secondary);
+    padding: 0.6em 1em;
+    border-radius: 0.3em;
+    font-size: 0.9em;
+    margin-bottom: 0.8em;
 }
