@@ -54,8 +54,8 @@ const PROMPTS = [
     "That's {possessiveDeterminer} pencil.",
     "I love {possessiveDeterminer} hair.",
     "{possessiveDeterminer} room is upstairs.",
-    "That book is {possessive}",
-    "I am friends of {possessive}",
+    "That book is {possessive}.",
+    "I am friends of {possessive}.",
     "{subjective} made {reflexive} a sandwich.",
     "{subjective} drew that all by {reflexive}.",
 ]

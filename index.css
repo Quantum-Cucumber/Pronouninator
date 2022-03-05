@@ -38,10 +38,33 @@ html, body {
     border: none;
     border-radius: 0.2em;
     color: inherit;
-
-    width: 100%;
+    appearance: none;
     font-size: inherit;
-    padding: 0.1em 0.2em;
+    width: 100%;
+
+    padding: 0.1em 1.2em 0.1em 0.2em;
+    text-overflow: clip;
+
+    background-image: url("res/chevron-down.svg");
+    background-repeat: no-repeat;
+    background-position-x: calc(100% - 0.2em);
+    background-position-y: center;
+    background-size: 1em;
+}
+
+.radio {
+    appearance: none;
+    font-size: inherit;
+    
+    width: 0.6em;
+    height: 0.6em;
+    background-color: var(--text);
+    border-radius: 50%;
+    cursor: pointer;
+}
+.radio:checked {
+    background-color: var(--primary);
+    border: 0.1em solid var(--text);
 }
 
 /* --- Layout --- */
@@ -104,6 +127,7 @@ body {
 }
 .options__textbox::placeholder {
     font-size: 0.6em;
+    vertical-align: baseline;
 }
 
 .options__small {

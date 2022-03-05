@@ -81,6 +81,11 @@ function onLoad() {
 
     document.getElementById("singular").checked = params.get("singularVerbs") === "true";
     document.getElementById("plural").checked = params.get("singularVerbs") === "false";
+
+    // If all fields are supplied, load the page
+    if (validateFields()) {
+        updatePage();
+    }
 }
 
 function getUrl() {
