@@ -1,22 +1,4 @@
 const PRESETS = {
-    she: {
-        name: "She/Her",
-        subjective: "she",
-        objective: "her",
-        possessiveDeterminer: "her",
-        possessive: "hers",
-        reflexive: "herself",
-        singularVerbs: true,
-    },
-    he: {
-        name: "He/Him",
-        subjective: "he",
-        objective: "him",
-        possessiveDeterminer: "his",
-        possessive: "his",
-        reflexive: "himself",
-        singularVerbs: true,
-    },
     they: {
         name: "They/Them",
         subjective: "they",
@@ -42,6 +24,24 @@ const PRESETS = {
         possessiveDeterminer: "its",
         possessive: "its",
         reflexive: "itself",
+        singularVerbs: true,
+    },
+    she: {
+        name: "She/Her",
+        subjective: "she",
+        objective: "her",
+        possessiveDeterminer: "her",
+        possessive: "hers",
+        reflexive: "herself",
+        singularVerbs: true,
+    },
+    he: {
+        name: "He/Him",
+        subjective: "he",
+        objective: "him",
+        possessiveDeterminer: "his",
+        possessive: "his",
+        reflexive: "himself",
         singularVerbs: true,
     },
 }
