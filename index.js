@@ -297,7 +297,7 @@ function populatePractice() {
     const pageDiv = document.getElementById("page");
 
     selectPrompts().forEach(prompt => {
-        prompt = prompt.replaceAll(/\{([a-z]+)\}/gi, (_match, g1) => `<input class="card__underline" data-type="${g1}" title="${pronounTypeToString(g1)}" />`);
+        prompt = prompt.replaceAll(/\{([a-z]+)\}/gi, (_match, g1) => `<input class="card__field" data-type="${g1}" title="${pronounTypeToString(g1)}" />`);
 
         const isSingular = document.getElementById("singular").checked;
         [...prompt.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
@@ -305,7 +305,7 @@ function populatePractice() {
         })
 
         pageDiv.innerHTML += `<div class="card card--pratice">
-            <form onsubmit="console.log">
+            <form onsubmit="validatePrompt(event, this)">
                 ${prompt}
                 <input type="submit" class="card__check" value=""/>
             </form>
@@ -313,26 +313,40 @@ function populatePractice() {
     })
 }
 
-function checkSubmit(e, element) {
-    e.preventDefault();
+function validatePrompt(event, form) {
+    /* Check that all fields are completed, if not, focus the first uncompleted */
+    event.preventDefault();
 
-    console.log("uwu")
+    const fields = form.querySelectorAll(".card__field");
+    const allComplete = [...fields].every(answer => {
+        if (!answer.value) {
+            answer.select();
+        }
+
+        return !!answer.value;
+    });
+
+    if (allComplete) {
+        checkAnswers(form);
+    }
 }
 
-function checkAnswers(element) {
-    const answers = element.parentElement.querySelectorAll(".card__underline");
+function checkAnswers(form) {
+    const fields = form.querySelectorAll(".card__field");
+    const card = form.parentElement;
+    const cardButton = form.querySelector(".card__check");
 
     let result = true;
-    [...answers].forEach(answer => {
+    fields.forEach(answer => {
         const correct = answer.value.toLowerCase().trim() === document.getElementById(answer.getAttribute("data-type")).value.toLowerCase();
 
         if (correct) {
-            answer.classList.add("card__underline--correct");
-            answer.classList.remove("card__underline--wrong");
+            answer.classList.add("card__field--correct");
+            answer.classList.remove("card__field--wrong");
             answer.disabled = true;
         }
         else {
-            answer.classList.add("card__underline--wrong");
+            answer.classList.add("card__field--wrong");
             answer.disabled = true;  // TODO: Only if quiz mode
 
             result = false;
@@ -340,13 +354,14 @@ function checkAnswers(element) {
     });
 
     if (result) {
-        element.parentElement.classList.add("card--correct");
-        element.style.display = "none";
+        card.classList.add("card--correct");
+        cardButton.style.display = "none";
     }
     else {  // TODO: Only if quiz mode
-        element.parentElement.classList.add("card--wrong");
-        element.style.display = "none";
+        card.classList.add("card--wrong");
+        cardButton.style.display = "none";
     }
 
-    console.log(result)
+    // Select next card's field
+    card.nextElementSibling?.querySelector(".card__field").select();  // TODO - Quiz mode
 }

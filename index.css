@@ -203,18 +203,18 @@ body {
 .card--correct {
     background-color: var(--success);
 }
-.card--correct .card__underline {
+.card--correct .card__field {
     border-bottom-color: var(--text);
 }
 
 .card--wrong {
     background-color: var(--error);
 }
-.card--wrong .card__underline {
+.card--wrong .card__field {
     border-bottom-color: var(--text);
 }
 
-.card__underline {
+.card__field {
     background-color: transparent;
     color: inherit;
     font-size: inherit;
@@ -226,10 +226,10 @@ body {
     border-bottom: 2px solid var(--text);
     text-align: center;
 }
-.card__underline--correct {
+.card__field--correct {
     border-bottom-color: var(--success);
 }
-.card__underline--wrong {
+.card__field--wrong {
     border-bottom-color: var(--error);
 }
 
