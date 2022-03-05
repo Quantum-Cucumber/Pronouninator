@@ -6,7 +6,8 @@
     --primary: #2D4263;
     --secondary: #C84B31;
     --text: #FFF;
-    --error: var(--secondary);
+    --success: #6DA34D;
+    --error: #BB3434;
 }
 
 html, body {
@@ -115,15 +116,13 @@ body {
 
 .options__textbox {
     background-color: transparent;
-    border: none;
-    border-bottom: 2px solid var(--primary);
     color: inherit;
-
-    width: 100%;
     font-size: inherit;
-}
-.options__textbox:focus {
+    border: none;
     outline: none;
+    
+    width: 100%;
+    border-bottom: 2px solid var(--primary);
 }
 .options__textbox::placeholder {
     font-size: 0.6em;
@@ -174,7 +173,6 @@ body {
     user-select: none;
 }
 .body__header__tab {
-    min-width: 150px;
     max-width: 50%;
     display: inline-block;
 
@@ -199,4 +197,63 @@ body {
     border-radius: 0.3em;
     font-size: 0.9em;
     margin-bottom: 0.8em;
+    position: relative;
+}
+
+.card--correct {
+    background-color: var(--success);
+}
+.card--correct .card__underline {
+    border-bottom-color: var(--text);
+}
+
+.card--wrong {
+    background-color: var(--error);
+}
+.card--wrong .card__underline {
+    border-bottom-color: var(--text);
+}
+
+.card__underline {
+    background-color: transparent;
+    color: inherit;
+    font-size: inherit;
+    border: none;
+    outline: none;
+
+    width: 5em;
+    height: 1em;
+    border-bottom: 2px solid var(--text);
+    text-align: center;
+}
+.card__underline--correct {
+    border-bottom-color: var(--success);
+}
+.card__underline--wrong {
+    border-bottom-color: var(--error);
+}
+
+.card--pratice {
+    padding-right: 2em;
+}
+
+.card__check {
+    background-color: transparent;
+    border: none;
+    font-size: inherit;
+    cursor: pointer;
+    padding: 0;
+
+    background-image: url("res/check-circle.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 1em;
+    height: 1em;
+
+    position: absolute;
+    right: 0.6em;
+    top: 0.6em;
+}
+.card__check:active {
+    opacity: 0.7;
 }

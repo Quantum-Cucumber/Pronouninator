@@ -123,7 +123,7 @@ function setTitle() {
     function getPartString(part) {
         let value = document.getElementById(part).value;
         // Lowercase then capitalise the first character
-        return value.toLowerCase().replace(/^\w/, char => char.toUpperCase());
+        return value.toLowerCase().replace(/^[a-z]/, char => char.toUpperCase());
     }
 
     const titleSuffix = document.title.split(" | ").pop();
@@ -148,6 +148,8 @@ function validateFields() {
 }
 
 function usePronouns() {
+    updatePage();  // This will clear or load the page
+
     const errorDiv = document.getElementById("error");
     if (validateFields()) {
         errorDiv.innerHTML = null;
@@ -161,8 +163,6 @@ function usePronouns() {
     window.history.pushState({}, "", url);
 
     setTitle();
-
-    updatePage();
 }
 
 function updatePage() {
@@ -179,6 +179,7 @@ function updatePage() {
             populateExamples();
             return;
         case "practice":
+            populatePractice();
             return;
     }
 }
@@ -261,21 +262,91 @@ function selectPrompts(maxValues = 5) {
 }
 
 function populateExamples() {
-    selectPrompts().forEach((prompt) => {
+    const pageDiv = document.getElementById("page");
+
+    selectPrompts().forEach(prompt => {
+        let sentence = prompt;
+
         // find/replace with the pronoun fields
         PRONOUNFIELDS.forEach(field => {
             const value = document.getElementById(field).value.toLowerCase();
-            prompt = prompt.replace(`{${field}}`, value);
+            sentence = sentence.replace(`{${field}}`, value);
+        })
+    
+        // {singular/plural}
+        const isSingular = document.getElementById("singular").checked;
+        [...sentence.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
+            sentence = sentence.replace(match, isSingular ? singular : plural);
         })
 
-        // {singular/plural}
+        // Make the first character uppercase
+        sentence = sentence.replace(/^[a-z]/, char => char.toUpperCase());
+
+        pageDiv.innerHTML += `<div class="card">${sentence}</div>`;
+    })
+}
+
+function pronounTypeToString(type) {
+    // Add a space before all capitals
+    type = type.replaceAll(/[A-Z]/g, (match) => ` ${match}`);
+    // Make the first letter uppercase
+    return type.replace(/^[a-z]/, char => char.toUpperCase());
+}
+
+function populatePractice() {
+    const pageDiv = document.getElementById("page");
+
+    selectPrompts().forEach(prompt => {
+        prompt = prompt.replaceAll(/\{([a-z]+)\}/gi, (_match, g1) => `<input class="card__underline" data-type="${g1}" title="${pronounTypeToString(g1)}" />`);
+
         const isSingular = document.getElementById("singular").checked;
         [...prompt.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
             prompt = prompt.replace(match, isSingular ? singular : plural);
         })
 
-        prompt = prompt.replace(/^\w/, char => char.toUpperCase());
-
-        document.getElementById("page").innerHTML += `<div class="card">${prompt}</div>`;
+        pageDiv.innerHTML += `<div class="card card--pratice">
+            <form onsubmit="console.log">
+                ${prompt}
+                <input type="submit" class="card__check" value=""/>
+            </form>
+        </div>`
     })
+}
+
+function checkSubmit(e, element) {
+    e.preventDefault();
+
+    console.log("uwu")
+}
+
+function checkAnswers(element) {
+    const answers = element.parentElement.querySelectorAll(".card__underline");
+
+    let result = true;
+    [...answers].forEach(answer => {
+        const correct = answer.value.toLowerCase().trim() === document.getElementById(answer.getAttribute("data-type")).value.toLowerCase();
+
+        if (correct) {
+            answer.classList.add("card__underline--correct");
+            answer.classList.remove("card__underline--wrong");
+            answer.disabled = true;
+        }
+        else {
+            answer.classList.add("card__underline--wrong");
+            answer.disabled = true;  // TODO: Only if quiz mode
+
+            result = false;
+        }
+    });
+
+    if (result) {
+        element.parentElement.classList.add("card--correct");
+        element.style.display = "none";
+    }
+    else {  // TODO: Only if quiz mode
+        element.parentElement.classList.add("card--wrong");
+        element.style.display = "none";
+    }
+
+    console.log(result)
 }
