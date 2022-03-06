@@ -43,10 +43,11 @@
         
         <div class="body">
             <div class="body__header">
-                <button class="body__header__tab body__header__tab--selected" disabled onClick="selectTab(this)" data-name="examples">Examples</button>
+                <button class="body__header__tab body__header__tab--selected" onClick="selectTab(this)" data-name="examples">Examples</button>
                 <button class="body__header__tab" onClick="selectTab(this)" data-name="practice">Practice</button>
             </div>
-            <div class="body__page" id="page"></div>
+            <div class="body__page" id="examples"></div>
+            <div class="body__page" id="practice" style="display: none;"></div>
         </div>
     </body>
 </html>

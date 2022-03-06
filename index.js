@@ -1,6 +1,19 @@
 const PRONOUNFIELDS = ["subjective", "objective", "possessiveDeterminer", "possessive", "reflexive"]
 const VERB_REGEX = /\{(.+)\/(.+)\}/gi;
 
+/*--Generic utility functions--*/
+function shuffle(array) {
+    /* https://stackoverflow.com/a/46545530 */
+    return array
+        .map(value => ({value, sort: Math.random()}))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value);
+}
+
+function getRandomIndex(array) {
+    return Math.floor(Math.random() * array.length);
+}
+
 
 function selectPreset(presetString) {
     /* Fills the form fields based on the preset string */
@@ -36,8 +49,11 @@ function selectPreset(presetString) {
     }
 }
 
+
+/*--Pronoun sharing--*/
+
 function onLoad() {
-    /* Populate the preset dropdown and fill the pronoun fields from the url params */
+    /* Populate the preset dropdown/fill the pronoun fields from the url params */
 
     // Populate dropdown
     const presetDropdown = document.getElementById("presets");
@@ -58,7 +74,7 @@ function onLoad() {
         document.getElementById("presets").value = preset;
         selectPreset(preset);
         setTitle();
-        updatePage();
+        populatePages();
 
         return;
     }
@@ -84,7 +100,7 @@ function onLoad() {
 
     // If all fields are supplied, load the page
     if (validateFields()) {
-        updatePage();
+        populatePages();
     }
 }
 
@@ -119,6 +135,43 @@ function getUrl() {
     return baseUrl + "?" + params.join("&");
 }
 
+function copyUrl() {
+    const url = getUrl();
+    navigator.clipboard.writeText(url);
+    alert("Copied sharable url");
+}
+
+
+function validateFields() {
+    /* Returns true if all fields have a value */
+    const fieldsCompleted = PRONOUNFIELDS.every(id => document.getElementById(id).value);
+    const radioSelected = document.getElementById("singular").checked || document.getElementById("plural").checked;
+
+    return fieldsCompleted && radioSelected;
+}
+
+function usePronouns() {
+    const errorDiv = document.getElementById("error");
+    if (validateFields()) {
+        errorDiv.innerHTML = null;
+    }
+    else {
+        errorDiv.innerHTML = "Please ensure all fields are completed";
+        return;
+    }
+
+    const url = getUrl();
+    window.history.pushState({}, "", url);
+
+    setTitle();
+    populatePages();
+}
+
+function populatePages() {
+    populateExamples();
+    populatePractice();
+}
+
 function setTitle() {
     function getPartString(part) {
         let value = document.getElementById(part).value;
@@ -133,81 +186,28 @@ function setTitle() {
     document.title = `${subjective}/${objective}/${possessive} | ${titleSuffix}`;
 }
 
-function copyUrl() {
-    const url = getUrl();
-    navigator.clipboard.writeText(url);
-    alert("Copied sharable url");
-}
 
-function validateFields() {
-    /* Returns true if all fields have a value */
-    const fieldsCompleted = PRONOUNFIELDS.every(id => document.getElementById(id).value);
-    const radioSelected = document.getElementById("singular").checked || document.getElementById("plural").checked;
-
-    return fieldsCompleted && radioSelected;
-}
-
-function usePronouns() {
-    updatePage();  // This will clear or load the page
-
-    const errorDiv = document.getElementById("error");
-    if (validateFields()) {
-        errorDiv.innerHTML = null;
-    }
-    else {
-        errorDiv.innerHTML = "Please ensure all fields are completed";
-        return;
-    }
-
-    const url = getUrl();
-    window.history.pushState({}, "", url);
-
-    setTitle();
-}
-
-function updatePage() {
-    /* Populates the page based on the current selected tab */
-    document.getElementById("page").innerHTML = "";
-
-    if (!validateFields()) return;
-    
-    const element = document.getElementsByClassName("body__header__tab--selected")[0];
-
-    switch (element.getAttribute("data-name")) {
-        default:
-        case "examples":
-            populateExamples();
-            return;
-        case "practice":
-            populatePractice();
-            return;
-    }
-}
-
-function selectTab(button) {
+function selectTab(tab) {
     // Remove the selected class from the current tab and add it to the clicked tab
     const tabs = document.getElementsByClassName("body__header__tab--selected");
     [...tabs].forEach(tab => {
         tab.classList.remove("body__header__tab--selected");
-        tab.disabled = false;
     });
 
-    button.classList.add("body__header__tab--selected");
-    button.disabled = true;
+    tab.classList.add("body__header__tab--selected");
 
-    updatePage();
-}
+    // Hide existing pages and show the page for the clicked tab
+    const pages = document.getElementsByClassName("body__page");
+    const tabName = tab.getAttribute("data-name");
 
-function shuffle(array) {
-    /* https://stackoverflow.com/a/46545530 */
-    return array
-        .map(value => ({value, sort: Math.random()}))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ value }) => value);
-}
-
-function getRandomIndex(array) {
-    return Math.floor(Math.random() * array.length);
+    [...pages].forEach(page => {
+        if (page.id === tabName) {
+            page.style.display = "block";
+        }
+        else {
+            page.style.display = "none";
+        }
+    })
 }
 
 function selectPrompts(maxValues = 5) {
@@ -265,8 +265,12 @@ function selectPrompts(maxValues = 5) {
     return shuffle(prompts);
 }
 
+
+/*--Example tab logic--*/
+
 function populateExamples() {
-    const pageDiv = document.getElementById("page");
+    const pageDiv = document.getElementById("examples");
+    pageDiv.innerHTML = null;
 
     selectPrompts().forEach((prompt, index) => {
         let sentence = prompt;
@@ -294,6 +298,9 @@ function populateExamples() {
     })
 }
 
+
+/*--Practice Tab Logic--*/
+
 function pronounTypeToString(type) {
     // Add a space before all capitals
     type = type.replaceAll(/[A-Z]/g, (match) => ` ${match}`);
@@ -302,10 +309,16 @@ function pronounTypeToString(type) {
 }
 
 function populatePractice() {
-    const pageDiv = document.getElementById("page");
+    const pageDiv = document.getElementById("practice");
+    pageDiv.innerHTML = null;
 
     selectPrompts().forEach((prompt, index) => {
-        prompt = prompt.replaceAll(/\{([a-z]+)\}/gi, (_match, g1) => `<input class="card__field" data-type="${g1}" title="${pronounTypeToString(g1)}" />`);
+        prompt = prompt.replaceAll(/\{([a-z]+)\}/gi,
+            (_match, g1) => {
+                const answer = document.getElementById(g1).value.trim().toLowerCase();
+                return `<input class="card__field" data-answer="${answer}" title="${pronounTypeToString(g1)}" />`
+            }
+        );
 
         const isSingular = document.getElementById("singular").checked;
         [...prompt.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
@@ -346,7 +359,7 @@ function checkAnswers(form) {
 
     let result = true;
     fields.forEach(answer => {
-        const correct = answer.value.toLowerCase().trim() === document.getElementById(answer.getAttribute("data-type")).value.toLowerCase();
+        const correct = answer.value.toLowerCase().trim() === answer.getAttribute("data-answer");
 
         if (correct) {
             answer.classList.add("card__field--correct");
