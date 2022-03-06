@@ -31,7 +31,7 @@
                     <label for="plural">Plural</label>
                 </div>
             </div>
-            <br />
+            
             <div class="options__buttons">
                 <button class="button options__buttons__use" onclick="usePronouns();">Use These Pronouns!</button>
                 <button class="button options__buttons__share" onclick="copyUrl()" title="Share these pronouns">
@@ -40,10 +40,11 @@
             </div>
             <div id="error" class="error"></div>
         </div>
+        
         <div class="body">
             <div class="body__header">
-                <div class="body__header__tab body__header__tab--selected" onClick="selectTab(this)" data-name="examples" tabindex="0">Examples</div>
-                <div class="body__header__tab" onClick="selectTab(this)" data-name="practice"  tabindex="0">Practice</div>
+                <button class="body__header__tab body__header__tab--selected" disabled onClick="selectTab(this)" data-name="examples">Examples</button>
+                <button class="body__header__tab" onClick="selectTab(this)" data-name="practice">Practice</button>
             </div>
             <div class="body__page" id="page"></div>
         </div>

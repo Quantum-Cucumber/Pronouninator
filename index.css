@@ -77,8 +77,6 @@ body {
 }
 .options {
     flex: none;
-    max-width: 30%;
-    width: 250px;
     box-sizing: border-box;
     padding: 0.8em;
 }
@@ -121,16 +119,14 @@ body {
     border: none;
     outline: none;
     
-    width: 100%;
+    display: block;
     border-bottom: 2px solid var(--primary);
 }
 .options__textbox::placeholder {
     font-size: 0.6em;
-    vertical-align: baseline;
 }
 
 .options__small {
-    width: 100%;
     font-size: 0.7em;
     height: 1em;
 }
@@ -173,6 +169,11 @@ body {
     user-select: none;
 }
 .body__header__tab {
+    border: none;
+    color: inherit;
+    font-size: inherit;
+    background-color: transparent;
+
     max-width: 50%;
     display: inline-block;
 
@@ -187,7 +188,7 @@ body {
 
 .body__page {
     flex: 1;
-    overflow: auto;
+    overflow: hidden auto;
     padding: 0.6em 0.5em;
 }
 
@@ -198,6 +199,19 @@ body {
     font-size: 0.9em;
     margin-bottom: 0.8em;
     position: relative;
+
+    animation: slide-in calc(var(--offset) * 0.1s) linear 0s;
+}
+
+@keyframes slide-in {
+    0% {
+        opacity: calc(var(--offset) * 0.1);
+        transform: translateX(calc(var(--offset) * 1em));
+    }
+    100% {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 .card--correct {

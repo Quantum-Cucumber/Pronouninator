@@ -184,12 +184,16 @@ function updatePage() {
     }
 }
 
-function selectTab(element) {
+function selectTab(button) {
     // Remove the selected class from the current tab and add it to the clicked tab
     const tabs = document.getElementsByClassName("body__header__tab--selected");
-    [...tabs].forEach(tab => tab.classList.remove("body__header__tab--selected"));
+    [...tabs].forEach(tab => {
+        tab.classList.remove("body__header__tab--selected");
+        tab.disabled = false;
+    });
 
-    element.classList.add("body__header__tab--selected");
+    button.classList.add("body__header__tab--selected");
+    button.disabled = true;
 
     updatePage();
 }
@@ -264,7 +268,7 @@ function selectPrompts(maxValues = 5) {
 function populateExamples() {
     const pageDiv = document.getElementById("page");
 
-    selectPrompts().forEach(prompt => {
+    selectPrompts().forEach((prompt, index) => {
         let sentence = prompt;
 
         // find/replace with the pronoun fields
@@ -282,7 +286,11 @@ function populateExamples() {
         // Make the first character uppercase
         sentence = sentence.replace(/^[a-z]/, char => char.toUpperCase());
 
-        pageDiv.innerHTML += `<div class="card">${sentence}</div>`;
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.style.setProperty("--offset", index);
+        card.innerHTML = sentence;
+        pageDiv.appendChild(card) 
     })
 }
 
@@ -296,7 +304,7 @@ function pronounTypeToString(type) {
 function populatePractice() {
     const pageDiv = document.getElementById("page");
 
-    selectPrompts().forEach(prompt => {
+    selectPrompts().forEach((prompt, index) => {
         prompt = prompt.replaceAll(/\{([a-z]+)\}/gi, (_match, g1) => `<input class="card__field" data-type="${g1}" title="${pronounTypeToString(g1)}" />`);
 
         const isSingular = document.getElementById("singular").checked;
@@ -304,7 +312,7 @@ function populatePractice() {
             prompt = prompt.replace(match, isSingular ? singular : plural);
         })
 
-        pageDiv.innerHTML += `<div class="card card--pratice">
+        pageDiv.innerHTML += `<div class="card card--pratice" style="--offset: ${index};">
             <form onsubmit="validatePrompt(event, this)">
                 ${prompt}
                 <input type="submit" class="card__check" value=""/>
