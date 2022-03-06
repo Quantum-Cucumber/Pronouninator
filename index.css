@@ -247,6 +247,17 @@ body {
     border-bottom-color: var(--error);
 }
 
+.card__answer {
+    border-bottom: 2px solid var(--text);
+    min-width: 5em;
+    display: inline-block;
+    text-align: center;
+}
+.card__answer__wrong {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
 .card--pratice {
     padding-right: 2em;
 }

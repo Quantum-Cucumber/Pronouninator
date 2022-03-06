@@ -314,9 +314,9 @@ function populatePractice() {
 
     selectPrompts().forEach((prompt, index) => {
         prompt = prompt.replaceAll(/\{([a-z]+)\}/gi,
-            (_match, g1) => {
-                const answer = document.getElementById(g1).value.trim().toLowerCase();
-                return `<input class="card__field" data-answer="${answer}" title="${pronounTypeToString(g1)}" />`
+            (_match, type) => {
+                const answer = document.getElementById(type).value.trim().toLowerCase();
+                return `<input class="card__field" data-answer="${answer}" title="${pronounTypeToString(type)}" />`
             }
         );
 
@@ -358,17 +358,28 @@ function checkAnswers(form) {
     const cardButton = form.querySelector(".card__check");
 
     let result = true;
-    fields.forEach(answer => {
-        const correct = answer.value.toLowerCase().trim() === answer.getAttribute("data-answer");
+    fields.forEach(field => {
+        const answer = field.getAttribute("data-answer");
+        const isCorrect = field.value.toLowerCase().trim() === answer;
 
-        if (correct) {
-            answer.classList.add("card__field--correct");
-            answer.classList.remove("card__field--wrong");
-            answer.disabled = true;
+        if (isCorrect) {
+            field.classList.add("card__field--correct");
+            field.classList.remove("card__field--wrong");
+
+            // Replace with 
+            const replacement = document.createElement("span");
+            replacement.classList.add("card__answer");
+            replacement.innerHTML = field.value;
+            field.replaceWith(replacement);
         }
         else {
-            answer.classList.add("card__field--wrong");
-            answer.disabled = true;  // TODO: Only if quiz mode
+            field.classList.add("card__field--wrong");
+
+            // Insert correct answer ~ TODO - Only in quiz mode
+            const replacement = document.createElement("span");
+            replacement.classList.add("card__answer");
+            replacement.innerHTML = `<span class="card__answer__wrong">${field.value}</span> ${answer}`;
+            field.replaceWith(replacement);
 
             result = false;
         }
