@@ -1,5 +1,5 @@
 const PRONOUNFIELDS = ["subjective", "objective", "possessiveDeterminer", "possessive", "reflexive"]
-const VERB_REGEX = /\{(.+)\/(.+)\}/gi;
+const VERB_REGEX = /\{([^\{\}]+?)\/([^\{\}]+?)\}/gi;
 
 /*--Generic utility functions--*/
 function shuffle(array) {
@@ -50,6 +50,74 @@ function selectPreset(presetString) {
 }
 
 
+/*--Element contruction--*/
+function createOption(key, value) {
+    const node = document.createElement("option");
+    node.value = key;
+    node.textContent = value;
+    return node
+}
+
+function createExampleCard(sentence, index) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.setProperty("--offset", index);
+    card.textContent = sentence;
+    return card;
+}
+
+function createPracticeField(answer, title) {
+    const field = document.createElement("input");
+    field.className = "card__field";
+    field.title = title;
+    field.setAttribute("data-answer", answer);
+
+
+    return field;
+}
+
+function createPracticeCard(prompt, index) {
+    const card = document.createElement("div");
+    card.className = "card card--practice";
+    card.style.setProperty("--offset", index);
+
+    const form = document.createElement("form");
+    form.addEventListener("submit", event => validatePrompt(event, form));
+    
+    const button = document.createElement("input");
+    button.className = "card__check";
+    button.type = "submit";
+    button.value = "";
+
+    form.appendChild(prompt);
+    form.appendChild(button);
+    card.appendChild(form);
+    return card;
+}
+
+function createCorrectReplacement(value) {
+    const span = document.createElement("span");
+    span.className = "card__answer";
+    span.innerHTML = value;
+
+    return span;
+}
+
+function createIncorrectReplacement(value, answer) {
+    const span = document.createElement("span");
+    span.className = "card__answer";
+
+    const wrongAnswer = document.createElement("span");
+    wrongAnswer.className="card__answer__wrong";
+    wrongAnswer.textContent = value;
+
+    const correctAnswer = document.createTextNode(` ${answer}`);
+
+    span.appendChild(wrongAnswer);
+    span.append(correctAnswer);
+    return span;
+}
+
 /*--Pronoun sharing--*/
 
 function onLoad() {
@@ -59,17 +127,15 @@ function onLoad() {
     const presetDropdown = document.getElementById("presets");
     const lastOption = presetDropdown.children[presetDropdown.children.length - 1];
     for (const key in PRESETS) {
-        const node = document.createElement("option");
-        node.value = key;
-        node.innerHTML = PRESETS[key].name;
-        presetDropdown.insertBefore(node, lastOption);
+        const option = createOption(key, PRESETS[key].name);
+        presetDropdown.insertBefore(option, lastOption);
     }
 
     // Get the url params
     const params = new URLSearchParams(window.location.search);
 
     // If a preset is specified, use that
-    if (params.has("preset")) {
+    if (params.has("preset") && params.get("preset") in PRESETS) {
         const preset = params.get("preset");
         document.getElementById("presets").value = preset;
         selectPreset(preset);
@@ -153,10 +219,10 @@ function validateFields() {
 function usePronouns() {
     const errorDiv = document.getElementById("error");
     if (validateFields()) {
-        errorDiv.innerHTML = null;
+        errorDiv.textContent = null;
     }
     else {
-        errorDiv.innerHTML = "Please ensure all fields are completed";
+        errorDiv.textContent = "Please ensure all fields are completed";
         return;
     }
 
@@ -270,7 +336,7 @@ function selectPrompts(maxValues = 5) {
 
 function populateExamples() {
     const pageDiv = document.getElementById("examples");
-    pageDiv.innerHTML = null;
+    const cards = document.createDocumentFragment();
 
     selectPrompts().forEach((prompt, index) => {
         let sentence = prompt;
@@ -290,12 +356,11 @@ function populateExamples() {
         // Make the first character uppercase
         sentence = sentence.replace(/^[a-z]/, char => char.toUpperCase());
 
-        const card = document.createElement("div");
-        card.classList.add("card");
-        card.style.setProperty("--offset", index);
-        card.innerHTML = sentence;
-        pageDiv.appendChild(card) 
+        const card = createExampleCard(sentence, index);
+        cards.appendChild(card) 
     })
+
+    pageDiv.replaceChildren(cards);
 }
 
 
@@ -310,28 +375,38 @@ function pronounTypeToString(type) {
 
 function populatePractice() {
     const pageDiv = document.getElementById("practice");
-    pageDiv.innerHTML = null;
+    const cards = document.createDocumentFragment();
 
-    selectPrompts().forEach((prompt, index) => {
-        prompt = prompt.replaceAll(/\{([a-z]+)\}/gi,
-            (_match, type) => {
-                const answer = document.getElementById(type).value.trim().toLowerCase();
-                return `<input class="card__field" data-answer="${answer}" title="${pronounTypeToString(type)}" />`
-            }
-        );
-
+    selectPrompts().forEach((promptText, index) => {
+        // Directly replace verbs text
         const isSingular = document.getElementById("singular").checked;
-        [...prompt.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
-            prompt = prompt.replace(match, isSingular ? singular : plural);
+        [...promptText.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
+            promptText = promptText.replace(match, isSingular ? singular : plural);
         })
 
-        pageDiv.innerHTML += `<div class="card card--pratice" style="--offset: ${index};">
-            <form onsubmit="validatePrompt(event, this)">
-                ${prompt}
-                <input type="submit" class="card__check" value=""/>
-            </form>
-        </div>`
+        const prompt = document.createDocumentFragment();
+
+        // Split prompt before and after the pronoun variables
+        promptText.split(/(\{[a-z]+\})/i)
+        .forEach(part => {
+            const variableCheck = part.match(/\{([a-z]+)\}/i);
+            // Add part as text node or field
+            if (variableCheck) {
+                const answer = document.getElementById(variableCheck[1]).value.trim().toLowerCase();
+                const field = createPracticeField(answer, pronounTypeToString(variableCheck[1]));
+                prompt.appendChild(field);
+            }
+            else {
+                const text = document.createTextNode(part);
+                prompt.appendChild(text);
+            }
+        });
+
+        const card = createPracticeCard(prompt, index);
+        cards.appendChild(card);
     })
+
+    pageDiv.replaceChildren(cards);
 }
 
 function validatePrompt(event, form) {
@@ -366,19 +441,15 @@ function checkAnswers(form) {
             field.classList.add("card__field--correct");
             field.classList.remove("card__field--wrong");
 
-            // Replace with 
-            const replacement = document.createElement("span");
-            replacement.classList.add("card__answer");
-            replacement.innerHTML = field.value;
+            // Replace with a simple span
+            const replacement = createCorrectReplacement(field.value);
             field.replaceWith(replacement);
         }
         else {
             field.classList.add("card__field--wrong");
 
             // Insert correct answer ~ TODO - Only in quiz mode
-            const replacement = document.createElement("span");
-            replacement.classList.add("card__answer");
-            replacement.innerHTML = `<span class="card__answer__wrong">${field.value}</span> ${answer}`;
+            const replacement = createIncorrectReplacement(field.value, answer);
             field.replaceWith(replacement);
 
             result = false;
