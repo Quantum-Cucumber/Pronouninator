@@ -18,6 +18,11 @@ function getNormalisedValue(id) {
     return document.getElementById(id).value.trim().toLowerCase();
 }
 
+function uppercase(text) {
+    /* Uppercase the first letter */
+    return text.replace(/^[a-z]/, char => char.toUpperCase());
+}
+
 
 function selectPreset(presetString) {
     /* Fills the form fields based on the preset string */
@@ -143,8 +148,7 @@ function onLoad() {
         const preset = params.get("preset");
         document.getElementById("presets").value = preset;
         selectPreset(preset);
-        setTitle();
-        populatePages();
+        populate();
 
         return;
     }
@@ -170,7 +174,7 @@ function onLoad() {
 
     // If all fields are supplied, load the page
     if (validateFields()) {
-        populatePages();
+        populate();
     }
 }
 
@@ -239,20 +243,14 @@ function usePronouns() {
     const url = getUrl();
     window.history.pushState({}, "", url);
 
-    setTitle();
-    populatePages();
-}
-
-function populatePages() {
-    populateExamples();
-    populatePractice();
+    populate();
 }
 
 function setTitle() {
     function getPartString(part) {
         let value = getNormalisedValue(part);
         // Capitalise the first character
-        return value.replace(/^[a-z]/, char => char.toUpperCase());
+        return uppercase(value);
     }
 
     const titleSuffix = document.title.split(" | ").pop();
@@ -260,6 +258,21 @@ function setTitle() {
     const objective = getPartString("objective");
     const possessive = getPartString("possessive");
     document.title = `${subjective}/${objective}/${possessive} | ${titleSuffix}`;
+}
+
+function setHint() {
+    const parts = PRONOUNFIELDS.map(getNormalisedValue);
+    const hint = parts.join("/");
+
+    document.getElementById("hint").textContent = hint;
+}
+
+function populate() {
+    setTitle();
+    setHint();
+
+    populateExamples();
+    populatePractice();
 }
 
 
@@ -363,8 +376,7 @@ function populateExamples() {
             sentence = sentence.replace(match, isSingular ? singular : plural);
         })
 
-        // Make the first character uppercase
-        sentence = sentence.replace(/^[a-z]/, char => char.toUpperCase());
+        sentence = uppercase(sentence);
 
         const card = createExampleCard(sentence, index);
         cards.appendChild(card) 
@@ -379,8 +391,7 @@ function populateExamples() {
 function pronounTypeToString(type) {
     // Add a space before all capitals
     type = type.replaceAll(/[A-Z]/g, (match) => ` ${match}`);
-    // Make the first letter uppercase
-    return type.replace(/^[a-z]/, char => char.toUpperCase());
+    return uppercase(type);
 }
 
 function populatePractice() {
