@@ -14,6 +14,10 @@ function getRandomIndex(array) {
     return Math.floor(Math.random() * array.length);
 }
 
+function getNormalisedValue(id) {
+    return document.getElementById(id).value.trim().toLowerCase();
+}
+
 
 function selectPreset(presetString) {
     /* Fills the form fields based on the preset string */
@@ -158,7 +162,7 @@ function onLoad() {
 
     // Fill in the form fields based on the params
     PRONOUNFIELDS.forEach(field => {
-        document.getElementById(field).value = params.get(field);
+        document.getElementById(field).value = params.get(field)?.trim().toLowerCase();
     })
 
     document.getElementById("singular").checked = params.get("singularVerbs") === "true";
@@ -184,7 +188,7 @@ function getUrl() {
 
     // Get each form field's value and add to the query params if a value is set
     PRONOUNFIELDS.forEach(field => {
-        const value = document.getElementById(field).value;
+        const value = getNormalisedValue(field);
         if (value) {
             params.push(field + "=" + value);
         }
@@ -210,7 +214,13 @@ function copyUrl() {
 
 function validateFields() {
     /* Returns true if all fields have a value */
-    const fieldsCompleted = PRONOUNFIELDS.every(id => document.getElementById(id).value);
+    const fieldsCompleted = PRONOUNFIELDS.every(id => {
+        const field = document.getElementById(id);
+        const value = field.value.trim();
+
+        if (!value) field.focus();
+        return value;
+    });
     const radioSelected = document.getElementById("singular").checked || document.getElementById("plural").checked;
 
     return fieldsCompleted && radioSelected;
@@ -240,9 +250,9 @@ function populatePages() {
 
 function setTitle() {
     function getPartString(part) {
-        let value = document.getElementById(part).value;
-        // Lowercase then capitalise the first character
-        return value.toLowerCase().replace(/^[a-z]/, char => char.toUpperCase());
+        let value = getNormalisedValue(part);
+        // Capitalise the first character
+        return value.replace(/^[a-z]/, char => char.toUpperCase());
     }
 
     const titleSuffix = document.title.split(" | ").pop();
@@ -343,7 +353,7 @@ function populateExamples() {
 
         // find/replace with the pronoun fields
         PRONOUNFIELDS.forEach(field => {
-            const value = document.getElementById(field).value.toLowerCase();
+            const value = getNormalisedValue(field);
             sentence = sentence.replace(`{${field}}`, value);
         })
     
@@ -392,7 +402,7 @@ function populatePractice() {
             const variableCheck = part.match(/\{([a-z]+)\}/i);
             // Add part as text node or field
             if (variableCheck) {
-                const answer = document.getElementById(variableCheck[1]).value.trim().toLowerCase();
+                const answer = getNormalisedValue(variableCheck[1]);
                 const field = createPracticeField(answer, pronounTypeToString(variableCheck[1]));
                 prompt.appendChild(field);
             }

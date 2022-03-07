@@ -79,11 +79,12 @@ body {
     flex: none;
     box-sizing: border-box;
     padding: 0.8em;
+    max-width: 30%;
 }
 .body {
     flex: 1 1 auto;
     box-sizing: border-box;
-    padding: 0.8em 2em;
+    padding: 0.8em 2em 0.8em 1.2em;
 }
 
 @media only screen and (orientation: portrait) {
@@ -121,6 +122,7 @@ body {
     
     display: block;
     border-bottom: 2px solid var(--primary);
+    width: 100%;
 }
 .options__textbox::placeholder {
     font-size: 0.6em;
@@ -176,6 +178,8 @@ body {
 
     max-width: 50%;
     display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     padding: 0.2em 0.5em;
     box-sizing: border-box;
