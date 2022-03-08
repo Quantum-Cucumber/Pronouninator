@@ -231,10 +231,10 @@ body {
     border-bottom-color: var(--text);
 }
 
-.card--wrong {
+.card--incorrect {
     background-color: var(--error);
 }
-.card--wrong .card__field {
+.card--incorrect .card__field {
     border-bottom-color: var(--text);
 }
 
@@ -253,7 +253,7 @@ body {
 .card__field--correct {
     border-bottom-color: var(--success);
 }
-.card__field--wrong {
+.card__field--incorrect {
     border-bottom-color: var(--error);
 }
 
@@ -263,7 +263,7 @@ body {
     display: inline-block;
     text-align: center;
 }
-.card__answer__wrong {
+.card__answer__incorrect {
     text-decoration: line-through;
     opacity: 0.5;
 }

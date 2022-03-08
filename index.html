@@ -15,7 +15,7 @@
                 <option value="custom">Custom</option>
             </select>
             
-            <div id="custom" style="display: none;">
+            <form id="custom" style="display: none;" onsubmit="submitPronouns(event)">
                 <input class="options__textbox" type="text" id="subjective" placeholder="Subjective" title="Subjective" />
                 <input class="options__textbox" type="text" id="objective" placeholder="Objective" title="Objective" />
                 <input class="options__textbox" type="text" id="possessiveDeterminer" placeholder="Possessive Determiner" title="Possessive Determiner" />
@@ -30,10 +30,10 @@
                     <input type="radio" name="verbs" value="plural" class="radio" id="plural" />
                     <label for="plural">Plural</label>
                 </div>
-            </div>
+            </form>
             
             <div class="options__buttons">
-                <button class="button options__buttons__use" onclick="usePronouns();">Use These Pronouns!</button>
+                <button class="button options__buttons__use" type="submit" form="custom">Use These Pronouns!</button>
                 <button class="button options__buttons__share" onclick="copyUrl()" title="Share these pronouns">
                     <img src="res/share-variant.svg" alt="Share">
                 </button>

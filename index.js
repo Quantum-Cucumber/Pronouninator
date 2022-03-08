@@ -134,14 +134,14 @@ function createIncorrectReplacement(value, answer) {
     const span = document.createElement("span");
     span.className = "card__answer";
 
-    const wrongAnswer = document.createElement("span");
-    wrongAnswer.className="card__answer__wrong";
-    wrongAnswer.textContent = value;
+    const incorrectAnswer = document.createElement("span");
+    incorrectAnswer.className="card__answer__incorrect";
+    incorrectAnswer.textContent = value;
 
     const correctAnswer = document.createTextNode(` ${answer}`);
 
-    span.appendChild(wrongAnswer);
-    span.append(correctAnswer);
+    span.appendChild(incorrectAnswer);
+    span.appendChild(correctAnswer);
     return span;
 }
 
@@ -236,6 +236,8 @@ function copyUrl() {
 }
 
 
+/*--Pronoun population--*/
+
 function validateFields() {
     /* Returns true if all fields have a value */
     const fieldsCompleted = PRONOUNFIELDS.every(id => {
@@ -250,30 +252,25 @@ function validateFields() {
     return fieldsCompleted && radioSelected;
 }
 
-function usePronouns() {
-    /* Runs when "use these pronouns" button is pressed */
-    const errorDiv = document.getElementById("error");
-    if (validateFields()) {
-        errorDiv.textContent = null;
+function submitPronouns(event) {
+    event.preventDefault();
 
-        // If a custom value was set up, hide the custom fields and set the dropdown text
-        const presetDropdown = document.getElementById("presets");
-        if (presetDropdown.value === "custom") {
-            collapseCustom();
-        }
-    }
-    else {
-        errorDiv.textContent = "Please ensure all fields are completed";
-        return;
+    if (!validateFields()) return;
+
+    // If a custom value was set up, hide the custom fields and set the dropdown text
+    const presetDropdown = document.getElementById("presets");
+    if (presetDropdown.value === "custom") {
+        collapseCustom();
     }
 
+    // Set url for this set of pronouns
     window.history.pushState({}, "", getUrl());
     populate();
 }
 
 function setTitle() {
     function getPartString(part) {
-        let value = getNormalisedValue(part);
+        const value = getNormalisedValue(part);
         // Capitalise the first character
         return uppercase(value);
     }
@@ -485,14 +482,14 @@ function checkAnswers(form) {
 
         if (isCorrect) {
             field.classList.add("card__field--correct");
-            field.classList.remove("card__field--wrong");
+            field.classList.remove("card__field--incorrect");
 
             // Replace with a simple span
             const replacement = createCorrectReplacement(field.value);
             field.replaceWith(replacement);
         }
         else {
-            field.classList.add("card__field--wrong");
+            field.classList.add("card__field--incorrect");
 
             // Insert correct answer ~ TODO - Only in quiz mode
             const replacement = createIncorrectReplacement(field.value, answer);
@@ -507,7 +504,7 @@ function checkAnswers(form) {
         cardButton.style.display = "none";
     }
     else {  // TODO: Only if quiz mode
-        card.classList.add("card--wrong");
+        card.classList.add("card--incorrect");
         cardButton.style.display = "none";
     }
 
