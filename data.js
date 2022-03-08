@@ -49,13 +49,28 @@ const PRESETS = {
 const PROMPTS = [
     "{subjective} {is/are} a great friend.",
     "{subjective} {loves/love} cats.",
+    "I think {subjective} is awesome.",
+    "{subjective} {has/have} cool hair.",
+    
     "That belongs to {objective}.",
     "I already asked {objective} that.",
+    "I saw {objective} vent!",
+    "I saw {objective} with {possessiveDeterminer} best friend.",
+    "{subjective} put {possessiveDeterminer} backpack on.",
+
     "That's {possessiveDeterminer} pencil.",
     "I love {possessiveDeterminer} hair.",
     "{possessiveDeterminer} room is upstairs.",
+    "{possessiveDeterminer} shirt is awesome.",
+    "A smile lit up {possessiveDeterminer} face.",
+    "I love {possessiveDeterminer} cooking.",
+
     "That book is {possessive}.",
-    "I am friends of {possessive}.",
+    "I like your shoes but {possessive} are amazing.",
+    "I found my seat but {subjective} {was/were} still looking for {possessive}.",
+
     "{subjective} made {reflexive} a sandwich.",
     "{subjective} drew that all by {reflexive}.",
+    "{subjective} bought {reflexive} a car.",
+    "{subjective} sat all by {reflexive}."
 ]
