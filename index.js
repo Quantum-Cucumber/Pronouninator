@@ -58,6 +58,24 @@ function selectPreset(presetString) {
     }
 }
 
+function collapseCustom() {
+    /* Hide the custom config fields and set the preset dropdown's text */
+    const presetDropdown = document.getElementById("presets");
+
+    // Removing existing custom config option
+    presetDropdown.querySelector("option[value=customConfig]")?.remove();
+
+    // Create custom value
+    const title = `${getNormalisedValue("subjective")}/${getNormalisedValue("objective")}/${getNormalisedValue("possessive")}`;
+    const option = createOption("customConfig", title);
+    option.hidden = true;
+    presetDropdown.appendChild(option);
+    presetDropdown.value = "customConfig";
+
+    // Hide fields
+    document.getElementById("custom").style.display = "none";
+}
+
 
 /*--Element contruction--*/
 function createOption(key, value) {
@@ -70,7 +88,7 @@ function createOption(key, value) {
 function createExampleCard(sentence, index) {
     const card = document.createElement("div");
     card.className = "card";
-    card.style.setProperty("--offset", index);
+    card.style.setProperty("--offset", index + 1);
     card.textContent = sentence;
     return card;
 }
@@ -88,7 +106,7 @@ function createPracticeField(answer, title) {
 function createPracticeCard(prompt, index) {
     const card = document.createElement("div");
     card.className = "card card--practice";
-    card.style.setProperty("--offset", index);
+    card.style.setProperty("--offset", index + 1);
 
     const form = document.createElement("form");
     form.addEventListener("submit", event => validatePrompt(event, form));
@@ -127,13 +145,15 @@ function createIncorrectReplacement(value, answer) {
     return span;
 }
 
+
 /*--Pronoun sharing--*/
 
 function onLoad() {
     /* Populate the preset dropdown/fill the pronoun fields from the url params */
+    const presetDropdown = document.getElementById("presets");
+    const customForm = document.getElementById("custom");
 
     // Populate dropdown
-    const presetDropdown = document.getElementById("presets");
     const lastOption = presetDropdown.children[presetDropdown.children.length - 1];
     for (const key in PRESETS) {
         const option = createOption(key, PRESETS[key].name);
@@ -146,22 +166,11 @@ function onLoad() {
     // If a preset is specified, use that
     if (params.has("preset") && params.get("preset") in PRESETS) {
         const preset = params.get("preset");
-        document.getElementById("presets").value = preset;
+        presetDropdown.value = preset;
         selectPreset(preset);
         populate();
 
         return;
-    }
-
-    // Set as custom if there are any fields supplied
-    const hasFields = PRONOUNFIELDS.some(param => params.has(param)) || params.get("singularVerbs");
-    if (hasFields) {
-        document.getElementById("presets").value = "custom";
-        document.getElementById("custom").style.display = "block";
-    }
-    else {
-        document.getElementById("presets").value = "select";
-        document.getElementById("custom").style.display = "none";
     }
 
     // Fill in the form fields based on the params
@@ -172,9 +181,20 @@ function onLoad() {
     document.getElementById("singular").checked = params.get("singularVerbs") === "true";
     document.getElementById("plural").checked = params.get("singularVerbs") === "false";
 
-    // If all fields are supplied, load the page
-    if (validateFields()) {
+    // Set the options dropdown based on supplied values
+    const hasFields = PRONOUNFIELDS.some(param => params.has(param)) || params.get("singularVerbs");
+    if (validateFields()) {  // All fields are supplied
+        collapseCustom();
+
         populate();
+    }
+    else if (hasFields) {
+        presetDropdown.value = "custom";
+        customForm.style.display = "block";
+    }
+    else {
+        presetDropdown.value = "select";
+        customForm.style.display = "none";
     }
 }
 
@@ -186,7 +206,7 @@ function getUrl() {
 
     // If a preset is selected, directly use that
     const presetDropdown = document.getElementById("presets");
-    if (presetDropdown.value !== "select" && presetDropdown.value !== "custom") {
+    if (presetDropdown.value in PRESETS) {
         return baseUrl + "?preset=" + presetDropdown.value;
     }
 
@@ -231,18 +251,23 @@ function validateFields() {
 }
 
 function usePronouns() {
+    /* Runs when "use these pronouns" button is pressed */
     const errorDiv = document.getElementById("error");
     if (validateFields()) {
         errorDiv.textContent = null;
+
+        // If a custom value was set up, hide the custom fields and set the dropdown text
+        const presetDropdown = document.getElementById("presets");
+        if (presetDropdown.value === "custom") {
+            collapseCustom();
+        }
     }
     else {
         errorDiv.textContent = "Please ensure all fields are completed";
         return;
     }
 
-    const url = getUrl();
-    window.history.pushState({}, "", url);
-
+    window.history.pushState({}, "", getUrl());
     populate();
 }
 
