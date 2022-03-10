@@ -45,16 +45,15 @@ const PRESETS = {
         singularVerbs: true,
     },
 }
-
+ 
 const PROMPTS = [
     "{subjective} {is/are} a great friend.",
     "{subjective} {loves/love} cats.",
-    "I think {subjective} is awesome.",
+    "I think {subjective} {is/are} awesome.",
     "{subjective} {has/have} cool hair.",
     
     "That belongs to {objective}.",
     "I already asked {objective} that.",
-    "I saw {objective} vent!",
     "I saw {objective} with {possessiveDeterminer} best friend.",
     "{subjective} put {possessiveDeterminer} backpack on.",
 

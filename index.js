@@ -14,18 +14,18 @@ function getRandomIndex(array) {
     return Math.floor(Math.random() * array.length);
 }
 
-function getNormalisedValue(id) {
-    return document.getElementById(id).value.trim().toLowerCase();
-}
-
 function uppercase(text) {
     /* Uppercase the first letter */
     return text.replace(/^[a-z]/, char => char.toUpperCase());
 }
 
 
+function getCustomField(id) {
+    return document.getElementById(id).value.trim().toLowerCase();
+}
+
 function selectPreset(presetString) {
-    /* Fills the form fields based on the preset string */
+    /* Visual logic when a dropdown option is chosen */
 
     if (presetString === "custom") {
         document.getElementById("custom").style.display = "block";
@@ -34,39 +34,23 @@ function selectPreset(presetString) {
         document.getElementById("custom").style.display = "none";
     }
 
-    // If not a preset value, make the fields empty
-    if (!(presetString in PRESETS)) {
-        PRONOUNFIELDS.forEach(field => {
-            document.getElementById(field).value = null;
-        })
-        document.getElementById("singular").checked = false;
-        document.getElementById("plural").checked = false;
-        return;
-    }
-
-    const preset = PRESETS[presetString];
-
+    // Reset the form fields
     PRONOUNFIELDS.forEach(field => {
-        document.getElementById(field).value = preset[field];
+        document.getElementById(field).value = null;
     })
-
-    if (preset.singularVerbs) {
-        document.getElementById("singular").checked = true;
-    }
-    else {
-        document.getElementById("plural").checked = true;
-    }
+    document.getElementById("singular").checked = false;
+    document.getElementById("plural").checked = false;
 }
 
-function collapseCustom() {
-    /* Hide the custom config fields and set the preset dropdown's text */
+function storeCustom() {
+    /* Custom values are collapsed and stored */
     const presetDropdown = document.getElementById("presets");
 
     // Removing existing custom config option
     presetDropdown.querySelector("option[value=customConfig]")?.remove();
 
-    // Create custom value
-    const title = `${getNormalisedValue("subjective")}/${getNormalisedValue("objective")}/${getNormalisedValue("possessive")}`;
+    // Create custom dropdown value
+    const title = `${getCustomField("subjective")}/${getCustomField("objective")}/${getCustomField("possessive")}`;
     const option = createOption("customConfig", title);
     option.hidden = true;
     presetDropdown.appendChild(option);
@@ -74,6 +58,14 @@ function collapseCustom() {
 
     // Hide fields
     document.getElementById("custom").style.display = "none";
+
+    // Store values
+    sessionStorage.clear();
+
+    PRONOUNFIELDS.forEach(field => {
+        sessionStorage.setItem(field, getCustomField(field));
+    })
+    sessionStorage.setItem("singularVerbs", document.getElementById("singular").checked);
 }
 
 
@@ -93,11 +85,11 @@ function createExampleCard(sentence, index) {
     return card;
 }
 
-function createPracticeField(answer, title) {
+function createPracticeField(type) {
     const field = document.createElement("input");
     field.className = "card__field";
-    field.title = title;
-    field.setAttribute("data-answer", answer);
+    field.title = pronounTypeToString(type);
+    field.setAttribute("data-type", type);
 
 
     return field;
@@ -168,6 +160,7 @@ function onLoad() {
         const preset = params.get("preset");
         presetDropdown.value = preset;
         selectPreset(preset);
+        storePreset(preset);
         populate();
 
         return;
@@ -175,7 +168,7 @@ function onLoad() {
 
     // Fill in the form fields based on the params
     PRONOUNFIELDS.forEach(field => {
-        document.getElementById(field).value = params.get(field)?.trim().toLowerCase();
+        document.getElementById(field).value = params.get(field)?.trim().toLowerCase() || null;
     })
 
     document.getElementById("singular").checked = params.get("singularVerbs") === "true";
@@ -184,8 +177,7 @@ function onLoad() {
     // Set the options dropdown based on supplied values
     const hasFields = PRONOUNFIELDS.some(param => params.has(param)) || params.get("singularVerbs");
     if (validateFields()) {  // All fields are supplied
-        collapseCustom();
-
+        storeCustom();
         populate();
     }
     else if (hasFields) {
@@ -212,7 +204,7 @@ function getUrl() {
 
     // Get each form field's value and add to the query params if a value is set
     PRONOUNFIELDS.forEach(field => {
-        const value = getNormalisedValue(field);
+        const value = getCustomField(field);
         if (value) {
             params.push(field + "=" + value);
         }
@@ -238,6 +230,17 @@ function copyUrl() {
 
 /*--Pronoun population--*/
 
+function storePreset(preset) {
+    if (!(preset in PRESETS)) throw new Error("Invalid preset value");
+
+    sessionStorage.clear();
+
+    const values = PRESETS[preset];
+    for (const value in values) {
+        sessionStorage.setItem(value, values[value]);
+    }
+}
+
 function validateFields() {
     /* Returns true if all fields have a value */
     const fieldsCompleted = PRONOUNFIELDS.every(id => {
@@ -255,35 +258,39 @@ function validateFields() {
 function submitPronouns(event) {
     event.preventDefault();
 
-    if (!validateFields()) return;
-
     // If a custom value was set up, hide the custom fields and set the dropdown text
-    const presetDropdown = document.getElementById("presets");
-    if (presetDropdown.value === "custom") {
-        collapseCustom();
+    const presetValue = document.getElementById("presets").value;
+    if (presetValue === "custom") {
+        if (!validateFields()) return;
+
+        storeCustom();
     }
+    else if (presetValue in PRESETS) {
+        storePreset(presetValue);
+    }
+    // Else, value is custom and should already be set
 
     // Set url for this set of pronouns
     window.history.pushState({}, "", getUrl());
+
     populate();
 }
 
 function setTitle() {
-    function getPartString(part) {
-        const value = getNormalisedValue(part);
-        // Capitalise the first character
+    function getTypeString(type) {
+        const value = sessionStorage.getItem(type);
         return uppercase(value);
     }
 
     const titleSuffix = document.title.split(" | ").pop();
-    const subjective = getPartString("subjective");
-    const objective = getPartString("objective");
-    const possessive = getPartString("possessive");
+    const subjective = getTypeString("subjective");
+    const objective = getTypeString("objective");
+    const possessive = getTypeString("possessive");
     document.title = `${subjective}/${objective}/${possessive} | ${titleSuffix}`;
 }
 
 function setHint() {
-    const parts = PRONOUNFIELDS.map(getNormalisedValue);
+    const parts = PRONOUNFIELDS.map(field => sessionStorage.getItem(field));
     const hint = parts.join("/");
 
     document.getElementById("hint").textContent = hint;
@@ -321,7 +328,7 @@ function selectTab(tab) {
     })
 }
 
-function selectPrompts(maxValues = 5) {
+function selectPrompts(maxValues = 6) {
     /* Selects an evenly distributed variety of prompts by the pronoun types they contain */    
     const categories = new Map();
 
@@ -337,12 +344,10 @@ function selectPrompts(maxValues = 5) {
 
         // Add prompt to categories
         types.forEach(type => {
-            if (categories.has(type)) {
-                categories.get(type).push(prompt);
+            if (!categories.has(type)) {
+                categories.set(type, []);
             }
-            else {
-                categories.set(type, [prompt]);
-            }
+            categories.get(type).push(prompt);
         })
     })
 
@@ -380,7 +385,7 @@ function selectPrompts(maxValues = 5) {
 /*--Example tab logic--*/
 
 function populateExamples() {
-    const pageDiv = document.getElementById("examples");
+    const pageDiv = document.getElementById("examples-cards");
     const cards = document.createDocumentFragment();
 
     selectPrompts().forEach((prompt, index) => {
@@ -388,12 +393,12 @@ function populateExamples() {
 
         // find/replace with the pronoun fields
         PRONOUNFIELDS.forEach(field => {
-            const value = getNormalisedValue(field);
+            const value = sessionStorage.getItem(field);
             sentence = sentence.replace(`{${field}}`, value);
         })
     
         // {singular/plural}
-        const isSingular = document.getElementById("singular").checked;
+        const isSingular = sessionStorage.getItem("singularVerbs") === "true";;
         [...sentence.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
             sentence = sentence.replace(match, isSingular ? singular : plural);
         })
@@ -417,12 +422,12 @@ function pronounTypeToString(type) {
 }
 
 function populatePractice() {
-    const pageDiv = document.getElementById("practice");
+    const pageDiv = document.getElementById("practice-cards");
     const cards = document.createDocumentFragment();
 
     selectPrompts().forEach((promptText, index) => {
         // Directly replace verbs text
-        const isSingular = document.getElementById("singular").checked;
+        const isSingular = sessionStorage.getItem("singularVerbs") === "true";
         [...promptText.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
             promptText = promptText.replace(match, isSingular ? singular : plural);
         })
@@ -435,8 +440,7 @@ function populatePractice() {
             const variableCheck = part.match(/\{([a-z]+)\}/i);
             // Add part as text node or field
             if (variableCheck) {
-                const answer = getNormalisedValue(variableCheck[1]);
-                const field = createPracticeField(answer, pronounTypeToString(variableCheck[1]));
+                const field = createPracticeField(variableCheck[1]);
                 prompt.appendChild(field);
             }
             else {
@@ -450,6 +454,9 @@ function populatePractice() {
     })
 
     pageDiv.replaceChildren(cards);
+
+    // Hide refresh button - TODO: QUIZ MODE AaA
+    document.getElementById("practice-button").style.display = "none";
 }
 
 function validatePrompt(event, form) {
@@ -477,7 +484,8 @@ function checkAnswers(form) {
 
     let result = true;
     fields.forEach(field => {
-        const answer = field.getAttribute("data-answer");
+        const type = field.getAttribute("data-type");
+        const answer = sessionStorage.getItem(type);
         const isCorrect = field.value.toLowerCase().trim() === answer;
 
         if (isCorrect) {
@@ -509,5 +517,12 @@ function checkAnswers(form) {
     }
 
     // Select next card's field
-    card.nextElementSibling?.querySelector(".card__field").select();  // TODO - Quiz mode
+    card.nextElementSibling?.querySelector(".card__field")?.select();
+
+    // TODO - Quiz mode
+    const cards = [...document.getElementById("practice").querySelectorAll(".card")];
+    const allSubmitted = cards.every(card => card.classList.contains("card--correct") || card.classList.contains("card--incorrect"));
+    if (allSubmitted) {
+        document.getElementById("practice-button").style.display = "block";
+    }
 }
