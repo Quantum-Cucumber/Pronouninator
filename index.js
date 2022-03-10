@@ -268,6 +268,7 @@ function submitPronouns(event) {
     else if (presetValue in PRESETS) {
         storePreset(presetValue);
     }
+    else if (presetValue === "select") return;
     // Else, value is custom and should already be set
 
     // Set url for this set of pronouns
@@ -410,6 +411,9 @@ function populateExamples() {
     })
 
     pageDiv.replaceChildren(cards);
+
+    // Show button
+    document.getElementById("examples-button").style.display = "block";
 }
 
 
