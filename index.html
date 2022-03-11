@@ -52,6 +52,10 @@
                 <button class="button" id="examples-button" onclick="populateExamples()" style="display: none;">More Examples</button>
             </div>
             <div class="body__page" id="practice" style="display: none;">
+                <div class="body__page__options" id="practice-options" style="display: none;">
+                    <label for="quiz-toggle">Quiz Mode</label>
+                    <input type="checkbox" class="toggle" id="quiz-toggle" onchange="populatePractice()" />
+                </div>
                 <div id="practice-cards"></div>
                 <button class="button" id="practice-button" onclick="populatePractice()" style="display: none;">Retry</button>
             </div>

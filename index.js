@@ -25,7 +25,7 @@ function getCustomField(id) {
 }
 
 function selectPreset(presetString) {
-    /* Visual logic when a dropdown option is chosen */
+    /* Hide/show the custom fields if the custom option is selected */
 
     if (presetString === "custom") {
         document.getElementById("custom").style.display = "block";
@@ -33,13 +33,6 @@ function selectPreset(presetString) {
     else {
         document.getElementById("custom").style.display = "none";
     }
-
-    // Reset the form fields
-    PRONOUNFIELDS.forEach(field => {
-        document.getElementById(field).value = null;
-    })
-    document.getElementById("singular").checked = false;
-    document.getElementById("plural").checked = false;
 }
 
 function storeCustom() {
@@ -116,7 +109,7 @@ function createPracticeCard(prompt, index) {
 
 function createCorrectReplacement(value) {
     const span = document.createElement("span");
-    span.className = "card__answer";
+    span.className = "card__answer card__answer--correct";
     span.innerHTML = value;
 
     return span;
@@ -145,12 +138,15 @@ function onLoad() {
     const presetDropdown = document.getElementById("presets");
     const customForm = document.getElementById("custom");
 
-    // Populate dropdown
+    // Populate dropdown with the preset pronoun sets
     const lastOption = presetDropdown.children[presetDropdown.children.length - 1];
     for (const key in PRESETS) {
         const option = createOption(key, PRESETS[key].name);
         presetDropdown.insertBefore(option, lastOption);
     }
+
+    // Clear any stored pronouns
+    sessionStorage.clear();
 
     // Get the url params
     const params = new URLSearchParams(window.location.search);
@@ -425,6 +421,10 @@ function pronounTypeToString(type) {
     return uppercase(type);
 }
 
+function isQuizMode() {
+    return document.getElementById("quiz-toggle").checked;
+}
+
 function populatePractice() {
     const pageDiv = document.getElementById("practice-cards");
     const cards = document.createDocumentFragment();
@@ -459,8 +459,14 @@ function populatePractice() {
 
     pageDiv.replaceChildren(cards);
 
-    // Hide refresh button - TODO: QUIZ MODE AaA
-    document.getElementById("practice-button").style.display = "none";
+    // Save quiz mode value for this round
+    if (isQuizMode()) {
+        document.getElementById("practice-button").style.display = "none";
+    }
+    else {
+        document.getElementById("practice-button").style.display = "block";
+    }
+    document.getElementById("practice-options").style.display = "block";
 }
 
 function validatePrompt(event, form) {
@@ -493,19 +499,20 @@ function checkAnswers(form) {
         const isCorrect = field.value.toLowerCase().trim() === answer;
 
         if (isCorrect) {
-            field.classList.add("card__field--correct");
-            field.classList.remove("card__field--incorrect");
-
             // Replace with a simple span
             const replacement = createCorrectReplacement(field.value);
             field.replaceWith(replacement);
         }
         else {
-            field.classList.add("card__field--incorrect");
-
-            // Insert correct answer ~ TODO - Only in quiz mode
-            const replacement = createIncorrectReplacement(field.value, answer);
-            field.replaceWith(replacement);
+            if (isQuizMode()) {
+                // Insert correct answer
+                const replacement = createIncorrectReplacement(field.value, answer);
+                field.replaceWith(replacement);
+            }
+            else {
+                // Show field as wrong
+                field.classList.add("card__field--incorrect");
+            }
 
             result = false;
         }
@@ -515,7 +522,7 @@ function checkAnswers(form) {
         card.classList.add("card--correct");
         cardButton.style.display = "none";
     }
-    else {  // TODO: Only if quiz mode
+    else if (isQuizMode()){
         card.classList.add("card--incorrect");
         cardButton.style.display = "none";
     }
@@ -523,10 +530,11 @@ function checkAnswers(form) {
     // Select next card's field
     card.nextElementSibling?.querySelector(".card__field")?.select();
 
-    // TODO - Quiz mode
-    const cards = [...document.getElementById("practice").querySelectorAll(".card")];
-    const allSubmitted = cards.every(card => card.classList.contains("card--correct") || card.classList.contains("card--incorrect"));
-    if (allSubmitted) {
-        document.getElementById("practice-button").style.display = "block";
+    if (isQuizMode()) {
+        const cards = [...document.getElementById("practice").querySelectorAll(".card")];
+        const allSubmitted = cards.every(card => card.classList.contains("card--correct") || card.classList.contains("card--incorrect"));
+        if (allSubmitted) {
+            document.getElementById("practice-button").style.display = "block";
+        }
     }
 }

@@ -68,6 +68,38 @@ html, body {
     border: 0.1em solid var(--text);
 }
 
+.toggle {
+    appearance: none;
+    margin: 0;
+    cursor: pointer;
+    position: relative;
+    vertical-align: bottom;
+
+    height: 1.8em;
+    width: 3.5em;
+    border-radius: 0.9em;
+    background-color: var(--bg-secondary);
+    padding: 0.3em;
+}
+.toggle:checked {
+    background-color: var(--success);
+}
+.toggle::after {
+    content: "";
+    display: block;
+    width: 1.2em;
+    height: 1.2em;
+    border-radius: 50%;
+    background-color: var(--text);
+
+    position: absolute;
+    transition: left 0.2s;
+    left: 0.3em;
+}
+.toggle:checked::after {
+    left: 2em;
+}
+
 /* --- Layout --- */
 
 body {
@@ -106,10 +138,7 @@ body {
 /* --- Specific styles --- */
 
 /* Options panel */
-.options > * {
-    margin: 0.2em 0;
-}
-.options > div > * {
+.options * {
     margin: 0.2em 0;
 }
 
@@ -196,6 +225,12 @@ body {
     padding: 0.6em 0.5em;
 }
 
+.body__page__options {
+    text-align: end;
+    font-size: 0.8em;
+    margin-bottom: 0.8em;
+}
+
 .hint {
     font-size: 0.8em;
     text-align: center;
@@ -227,7 +262,7 @@ body {
 .card--correct {
     background-color: var(--success);
 }
-.card--correct .card__field {
+.card--correct .card__field, .card--correct .card__answer {
     border-bottom-color: var(--text);
 }
 
@@ -252,9 +287,6 @@ body {
 }
 .card__field:focus {
     border-bottom-color: var(--secondary);
-  }
-.card__field--correct {
-    border-bottom-color: var(--success);
 }
 .card__field--incorrect {
     border-bottom-color: var(--error);
@@ -265,6 +297,9 @@ body {
     min-width: 5em;
     display: inline-block;
     text-align: center;
+}
+.card__answer--correct {
+    border-bottom-color: var(--success);
 }
 .card__answer__incorrect {
     text-decoration: line-through;
