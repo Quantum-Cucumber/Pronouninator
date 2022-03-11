@@ -14,12 +14,14 @@ Pronoun presets are stored in [data.js](src/data.js).
         possessive: "hers",
         reflexive: "herself",
         singularVerbs: true,
+        categories: ["traditional"],
     },
 ```
 All fields are mandatory.
 - The key of this object is arbitrary but as a general rule, should be the same as the `subjective` field.
 - The `name` field refers to how the pronoun set would be colloquially expressed, e.g. `She/Her`, or `Xe/Xem`. This should be in title case.
 - `singularVerbs` is a boolean referring to whether verbs should be made singular or not, e.g. `He *runs*.` vs `They *run*.`
+- `categories` defines which categories a set of pronouns should appear under.
 
 
 ## New Examples/Questions
