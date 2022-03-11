@@ -269,7 +269,7 @@ body {
 .card--incorrect {
     background-color: var(--error);
 }
-.card--incorrect .card__field {
+.card--incorrect .card__field, .card--incorrect .card__answer {
     border-bottom-color: var(--text);
 }
 
