@@ -15,9 +15,11 @@
     </head>
     <body onload="onLoad()">
         <div class="options">
-            <select class="dropdown" id="presets" onchange="selectPreset(this.value)">
+            <select class="dropdown" id="categories" onchange="selectCategory(this.value)">
+                <option value="select" selected hidden>--Category--</option>
+            </select>
+            <select class="dropdown" id="presets" style="display: none;">
                 <option value="select" selected hidden>--Select--</option>
-                <option value="custom">Custom</option>
             </select>
             
             <form id="custom" style="display: none;" onsubmit="submitPronouns(event)">

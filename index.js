@@ -19,50 +19,13 @@ function uppercase(text) {
     return text.replace(/^[a-z]/, char => char.toUpperCase());
 }
 
-
 function getCustomField(id) {
     return document.getElementById(id).value.trim().toLowerCase();
 }
 
-function selectPreset(presetString) {
-    /* Hide/show the custom fields if the custom option is selected */
-
-    if (presetString === "custom") {
-        document.getElementById("custom").style.display = "block";
-    }
-    else {
-        document.getElementById("custom").style.display = "none";
-    }
-}
-
-function storeCustom() {
-    /* Custom values are collapsed and stored */
-    const presetDropdown = document.getElementById("presets");
-
-    // Removing existing custom config option
-    presetDropdown.querySelector("option[value=customConfig]")?.remove();
-
-    // Create custom dropdown value
-    const title = `${getCustomField("subjective")}/${getCustomField("objective")}/${getCustomField("possessive")}`;
-    const option = createOption("customConfig", title);
-    option.hidden = true;
-    presetDropdown.appendChild(option);
-    presetDropdown.value = "customConfig";
-
-    // Hide fields
-    document.getElementById("custom").style.display = "none";
-
-    // Store values
-    sessionStorage.clear();
-
-    PRONOUNFIELDS.forEach(field => {
-        sessionStorage.setItem(field, getCustomField(field));
-    })
-    sessionStorage.setItem("singularVerbs", document.getElementById("singular").checked);
-}
-
 
 /*--Element contruction--*/
+
 function createOption(key, value) {
     const node = document.createElement("option");
     node.value = key;
@@ -131,19 +94,111 @@ function createIncorrectReplacement(value, answer) {
 }
 
 
+/* Dropdowns */
+
+function populateCategories() {
+    /* Insert preset categories into the dropdown */
+
+    // Get all categories from the presets
+    const categories = new Set();
+    Object.values(PRESETS).forEach(preset => {
+        preset.categories.forEach(category => categories.add(category));
+    })
+
+    const categoriesDropdown = document.getElementById("categories");
+
+    // Create all the options
+    const newOptions = document.createDocumentFragment();
+    categories.forEach(category => {
+        const option = createOption(category, uppercase(category));
+        newOptions.appendChild(option);
+    })
+
+    // Needs to go at the end
+    const customOption = createOption("custom", "Custom");
+    newOptions.appendChild(customOption);
+
+    categoriesDropdown.appendChild(newOptions);  // (Note - populateCategories is only called in onLoad so this is fine)
+}
+
+
+function selectCategory(category) {
+    // Show custom fields if needed
+    if (category === "custom") {
+        document.getElementById("custom").style.display = "block";
+    }
+    else {
+        document.getElementById("custom").style.display = "none";
+    }
+
+    const presetDropdown = document.getElementById("presets");
+    
+    // Show preset dropdown if a category is selected
+    if (category === "custom" || category === "select") {
+        presetDropdown.style.display = "none";
+        presetDropdown.value = "select";
+    }
+    else {
+        presetDropdown.style.display = "block";
+    }
+
+    // Create preset options
+    const presetOptions = document.createDocumentFragment();
+
+    // Create the default select option
+    const selectOption = createOption("select", "--Select--");
+    selectOption.hidden = true;
+    selectOption.selected = true;
+    presetOptions.appendChild(selectOption)
+
+    // Add presets from that category to the preset dropdown
+    for (const key in PRESETS) {
+        const preset = PRESETS[key];
+
+        if (preset.categories.indexOf(category) !== -1) {
+            const option = createOption(key, preset.name);
+            presetOptions.appendChild(option);
+        }
+    }
+
+    presetDropdown.replaceChildren(presetOptions);
+}
+
+function storeCustom() {
+    /* Custom values are collapsed, stored and made visible in the dropdown */
+    const categoryDropdown = document.getElementById("categories");
+
+    // Removing existing custom config option
+    categoryDropdown.querySelector("option[value=customConfig]")?.remove();
+
+    // Create custom dropdown value
+    const title = `${getCustomField("subjective")}/${getCustomField("objective")}/${getCustomField("possessive")}`;
+    const option = createOption("customConfig", title);
+    option.hidden = true;
+    categoryDropdown.appendChild(option);
+    categoryDropdown.value = "customConfig";
+
+    // Hide fields
+    document.getElementById("custom").style.display = "none";
+
+    // Store values
+    sessionStorage.clear();
+
+    PRONOUNFIELDS.forEach(field => {
+        sessionStorage.setItem(field, getCustomField(field));
+    })
+    sessionStorage.setItem("singularVerbs", document.getElementById("singular").checked);
+}
+
+
 /*--Pronoun sharing--*/
 
 function onLoad() {
     /* Populate the preset dropdown/fill the pronoun fields from the url params */
-    const presetDropdown = document.getElementById("presets");
-    const customForm = document.getElementById("custom");
 
-    // Populate dropdown with the preset pronoun sets
-    const lastOption = presetDropdown.children[presetDropdown.children.length - 1];
-    for (const key in PRESETS) {
-        const option = createOption(key, PRESETS[key].name);
-        presetDropdown.insertBefore(option, lastOption);
-    }
+    const categoryDropdown = document.getElementById("categories");
+
+    populateCategories();
 
     // Clear any stored pronouns
     sessionStorage.clear();
@@ -154,8 +209,15 @@ function onLoad() {
     // If a preset is specified, use that
     if (params.has("preset") && params.get("preset") in PRESETS) {
         const preset = params.get("preset");
-        presetDropdown.value = preset;
-        selectPreset(preset);
+
+        // Show the preset in the category dropdown
+        const presetValues = PRESETS[preset];
+        const option = createOption("customConfig", presetValues.name);
+        option.hidden = true;
+        categoryDropdown.appendChild(option);
+        // Select that option
+        categoryDropdown.value = "customConfig";
+
         storePreset(preset);
         populate();
 
@@ -171,17 +233,19 @@ function onLoad() {
     document.getElementById("plural").checked = params.get("singularVerbs") === "false";
 
     // Set the options dropdown based on supplied values
+    const customForm = document.getElementById("custom");
+
     const hasFields = PRONOUNFIELDS.some(param => params.has(param)) || params.get("singularVerbs");
     if (validateFields()) {  // All fields are supplied
         storeCustom();
         populate();
     }
     else if (hasFields) {
-        presetDropdown.value = "custom";
+        categoryDropdown.value = "custom";
         customForm.style.display = "block";
     }
     else {
-        presetDropdown.value = "select";
+        categoryDropdown.value = "select";
         customForm.style.display = "none";
     }
 }
@@ -254,9 +318,11 @@ function validateFields() {
 function submitPronouns(event) {
     event.preventDefault();
 
-    // If a custom value was set up, hide the custom fields and set the dropdown text
+    // Determine the source of the pronouns - custom fields or a preset
+    const categoryValue = document.getElementById("categories").value;
     const presetValue = document.getElementById("presets").value;
-    if (presetValue === "custom") {
+
+    if (categoryValue === "custom") {
         if (!validateFields()) return;
 
         storeCustom();
@@ -264,10 +330,9 @@ function submitPronouns(event) {
     else if (presetValue in PRESETS) {
         storePreset(presetValue);
     }
-    else if (presetValue === "select") return;
-    // Else, value is custom and should already be set
+    else return;  // No need to repopulate
 
-    // Set url for this set of pronouns
+    // Set url for this pronoun set
     window.history.pushState({}, "", getUrl());
 
     populate();
