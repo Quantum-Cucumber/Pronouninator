@@ -19,6 +19,11 @@ function uppercase(text) {
     return text.replace(/^[a-z]/, char => char.toUpperCase());
 }
 
+function titlecase(text) {
+    /* Uppercase the first letter of every word */
+    return text.replaceAll(/(^|\s)[a-z]/g, char => char.toUpperCase());
+}
+
 function getCustomField(id) {
     return document.getElementById(id).value.trim().toLowerCase();
 }
@@ -109,8 +114,10 @@ function populateCategories() {
 
     // Create all the options
     const newOptions = document.createDocumentFragment();
-    categories.forEach(category => {
-        const option = createOption(category, uppercase(category));
+
+    [...categories].sort((a, b) => a > b)  // Alphabetical order
+    .forEach(category => {
+        const option = createOption(category, titlecase(category));
         newOptions.appendChild(option);
     })
 
@@ -169,7 +176,7 @@ function storeCustom() {
     const categoryDropdown = document.getElementById("categories");
 
     // Removing existing custom config option
-    categoryDropdown.querySelector("option[value=customConfig]")?.remove();
+    categoryDropdown.querySelectorAll("option[value=customConfig]").forEach(el => el.remove());
 
     // Create custom dropdown value
     const title = `${getCustomField("subjective")}/${getCustomField("objective")}/${getCustomField("possessive")}`;
@@ -196,46 +203,63 @@ function storeCustom() {
 function onLoad() {
     /* Populate the preset dropdown/fill the pronoun fields from the url params */
 
-    const categoryDropdown = document.getElementById("categories");
-
     populateCategories();
-
     // Clear any stored pronouns
     sessionStorage.clear();
 
-    // Get the url params
-    const params = new URLSearchParams(window.location.search);
+    window.addEventListener("hashchange", parseUrl);
+    parseUrl();
+}
+
+function cleanHash(hash) {
+    hash = hash.replace(/^#?\/?/, "");
+    parts = hash.split("/").slice(0, 6);  // Limit to 6 - 5 pronoun types + "plural"
+    return parts;
+}
+
+function parseUrl() {
+    const categoryDropdown = document.getElementById("categories");
+
+    // Gets the url to be read
+    const parts = cleanHash(window.location.hash);
+    let isPlural = false;
 
     // If a preset is specified, use that
-    if (params.has("preset") && params.get("preset") in PRESETS) {
-        const preset = params.get("preset");
-
+    if (parts.length === 1 && parts[0] in PRESETS) {
         // Show the preset in the category dropdown
-        const presetValues = PRESETS[preset];
+        const presetValues = PRESETS[parts[0]];
         const option = createOption("customConfig", presetValues.name);
         option.hidden = true;
         categoryDropdown.appendChild(option);
         // Select that option
         categoryDropdown.value = "customConfig";
 
-        storePreset(preset);
+        storePreset(parts[0]);
         populate();
 
         return;
     }
+    else if (parts.length === 6 && parts[5] === "plural") {
+        isPlural = true;
+    }
+    else if (parts.length !== 5) return;
 
     // Fill in the form fields based on the params
-    PRONOUNFIELDS.forEach(field => {
-        document.getElementById(field).value = params.get(field)?.trim().toLowerCase() || null;
-    })
+    for (let i=0; i<5; i++) {
+        document.getElementById(PRONOUNFIELDS[i]).value = parts[i].trim().toLowerCase();
+    }
 
-    document.getElementById("singular").checked = params.get("singularVerbs") === "true";
-    document.getElementById("plural").checked = params.get("singularVerbs") === "false";
+    if (isPlural) {
+        document.getElementById("plural").checked = true;
+    }
+    else {
+        document.getElementById("singular").checked = true;
+    }
 
     // Set the options dropdown based on supplied values
     const customForm = document.getElementById("custom");
 
-    const hasFields = PRONOUNFIELDS.some(param => params.has(param)) || params.get("singularVerbs");
+    const hasFields = parts.some(p => p !== "");
     if (validateFields()) {  // All fields are supplied
         storeCustom();
         populate();
@@ -253,32 +277,26 @@ function onLoad() {
 function getUrl() {
     /* Builds the sharable url */
 
-    const baseUrl = window.location.href.split("?")[0];
-    const params = [];
+    const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, "");
+    const parts = [];
 
     // If a preset is selected, directly use that
-    const presetDropdown = document.getElementById("presets");
-    if (presetDropdown.value in PRESETS) {
-        return baseUrl + "?preset=" + presetDropdown.value;
+    const preset = document.getElementById("presets").value;
+    if (preset in PRESETS) {
+        return baseUrl + "/#/" + preset;
     }
 
     // Get each form field's value and add to the query params if a value is set
     PRONOUNFIELDS.forEach(field => {
         const value = getCustomField(field);
-        if (value) {
-            params.push(field + "=" + value);
-        }
+        parts.push(value);
     })
 
-    // Determine if the pronouns are singular or plural and add to params
-    if (document.getElementById("singular").checked) {
-        params.push("singularVerbs=true");
-    }
-    else if (document.getElementById("plural").checked) {
-        params.push("singularVerbs=false");
+    if (document.getElementById("plural").checked) {
+        parts.push("plural")
     }
 
-    return baseUrl + "?" + params.join("&");
+    return baseUrl + "/#/" + parts.join("/");
 }
 
 function copyUrl() {
