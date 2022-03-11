@@ -504,8 +504,8 @@ function pronounTypeToString(type) {
     return uppercase(type);
 }
 
-function isQuizMode() {
-    return document.getElementById("quiz-toggle").checked;
+function isChallengeMode() {
+    return document.getElementById("challenge-toggle").checked;
 }
 
 function populatePractice() {
@@ -542,13 +542,14 @@ function populatePractice() {
 
     pageDiv.replaceChildren(cards);
 
-    // Save quiz mode value for this round
-    if (isQuizMode()) {
+    // Show/hide retry button
+    if (isChallengeMode()) {
         document.getElementById("practice-button").style.display = "none";
     }
     else {
         document.getElementById("practice-button").style.display = "block";
     }
+    
     document.getElementById("practice-options").style.display = "block";
 }
 
@@ -575,6 +576,7 @@ function checkAnswers(form) {
     const card = form.parentElement;
     const cardButton = form.querySelector(".card__check");
 
+    // Check the result of all fields
     let result = true;
     fields.forEach(field => {
         const type = field.getAttribute("data-type");
@@ -587,7 +589,7 @@ function checkAnswers(form) {
             field.replaceWith(replacement);
         }
         else {
-            if (isQuizMode()) {
+            if (isChallengeMode()) {
                 // Insert correct answer
                 const replacement = createIncorrectReplacement(field.value, answer);
                 field.replaceWith(replacement);
@@ -601,19 +603,21 @@ function checkAnswers(form) {
         }
     });
 
+    // Mark the card depending on the result
     if (result) {
         card.classList.add("card--correct");
         cardButton.style.display = "none";
     }
-    else if (isQuizMode()){
+    else if (isChallengeMode()){
         card.classList.add("card--incorrect");
         cardButton.style.display = "none";
     }
-
-    // Select next card's field
-    card.nextElementSibling?.querySelector(".card__field")?.select();
-
-    if (isQuizMode()) {
+    
+    // Select the next field of the first unfilled card
+    document.getElementById("practice").querySelector(".card__field")?.select();
+    
+    // When all cards are completed, show the retry button
+    if (isChallengeMode()) {
         const cards = [...document.getElementById("practice").querySelectorAll(".card")];
         const allSubmitted = cards.every(card => card.classList.contains("card--correct") || card.classList.contains("card--incorrect"));
         if (allSubmitted) {

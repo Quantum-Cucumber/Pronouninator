@@ -54,14 +54,16 @@
                 <button class="body__header__tab body__header__tab--selected" onClick="selectTab(this)" data-name="examples">Examples</button>
                 <button class="body__header__tab" onClick="selectTab(this)" data-name="practice">Practice</button>
             </div>
+            
             <div class="body__page" id="examples">
                 <div id="examples-cards"></div>
                 <button class="button" id="examples-button" onclick="populateExamples()" style="display: none;">More Examples</button>
             </div>
+
             <div class="body__page" id="practice" style="display: none;">
                 <div class="body__page__options" id="practice-options" style="display: none;">
-                    <label for="quiz-toggle">Quiz Mode</label>
-                    <input type="checkbox" class="toggle" id="quiz-toggle" onchange="populatePractice()" />
+                    <label for="challenge-toggle">Challenge Mode</label>
+                    <input type="checkbox" class="toggle" id="challenge-toggle" onchange="populatePractice()" title="Challenge mode tests if you can get the corrent answer on the first attempt." />
                 </div>
                 <div id="practice-cards"></div>
                 <button class="button" id="practice-button" onclick="populatePractice()" style="display: none;">Retry</button>
