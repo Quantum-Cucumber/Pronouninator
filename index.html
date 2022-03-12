@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Pronouninator</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <meta property="og:title" content="Pronouninator" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://quantum-cucumber.github.io/Pronouninator" />
-        <meta property="og:description" content="A website to share, practice and learn new pronouns." />
-        
-        <link rel="stylesheet" href="index.css" />
-        <script src="data.js"></script>
-        <script src="index.js"></script>
-    </head>
-    <body onload="onLoad()">
+<head>
+    <title>Pronouninator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta property="og:title" content="Pronouninator" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://quantum-cucumber.github.io/Pronouninator" />
+    <meta property="og:description" content="A website to share, practice and learn new pronouns." />
+    
+    <link rel="stylesheet" href="index.css" />
+    <script src="data.js"></script>
+    <script src="index.js"></script>
+</head>
+
+<body onload="onLoad()">
+    <div class="page-wrapper">
         <div class="options">
             <select class="dropdown" id="categories" onchange="selectCategory(this.value)">
                 <option value="select" selected hidden>--Category--</option>
@@ -69,5 +72,13 @@
                 <button class="button" id="practice-button" onclick="populatePractice()" style="display: none;">Retry</button>
             </div>
         </div>
-    </body>
+    </div>
+
+    <div class="footer">
+        <a class="footer__icon" href="https://github.com/Quantum-Cucumber/Pronouninator" target="none">
+            <img class="footer__icon__img" src="res/github.svg" alt="Github" title="View on Github" />
+        </a>
+    </div>
+</body>
+
 </html>

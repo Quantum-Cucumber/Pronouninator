@@ -8,6 +8,9 @@
     --text: #FFF;
     --success: #6DA34D;
     --error: #BB3434;
+
+    font-size: clamp(2.5vh, 1.8rem, 5vw);  /* Honestly these values don't mean much. */
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 html, body {
@@ -17,7 +20,9 @@ html, body {
 
     background-color: var(--bg);
     color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
+}
+body {
+    overflow: hidden;
 }
 
 .button {
@@ -104,8 +109,13 @@ html, body {
 
 body {
     display: flex;
+    flex-direction: column;
+}
+.page-wrapper {
+    display: flex;
     flex-direction: row;
-    font-size: clamp(2.5vh, 1.8rem, 5vw);  /* Honestly these values don't mean much. */
+    flex: 1 1 auto;
+    overflow: hidden;
 }
 .options {
     flex: none;
@@ -119,8 +129,17 @@ body {
     padding: 0.8em 2em 0.8em 1.2em;
 }
 
+.footer {
+    padding: 0.2em;
+}
+
 @media only screen and (orientation: portrait) {
     body {
+        min-height: 100%;
+        height: unset;
+        overflow: hidden auto;
+    }
+    .page-wrapper {
         display: unset;
     }
     .options {
@@ -222,7 +241,7 @@ body {
 .body__page {
     flex: 1;
     overflow: hidden auto;
-    padding: 0.6em 0.5em;
+    padding: 0.6em 0.5em 0;
 }
 
 .body__page__options {
@@ -329,4 +348,18 @@ body {
 }
 .card__check:active {
     opacity: 0.7;
+}
+
+.footer {
+    box-sizing: border-box;
+}
+.footer__icon {
+    height: 1.2em;
+    width: 1.2em;
+    display: block;
+    float: right;
+}
+.footer__icon__img {
+    height: 100%;
+    width: 100%;
 }
