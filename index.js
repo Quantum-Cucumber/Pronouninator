@@ -1,4 +1,4 @@
-const PRONOUNFIELDS = ["subjective", "objective", "possessiveDeterminer", "possessive", "reflexive"]
+const PRONOUNFIELDS = ["subjective", "objective", "possessiveDeterminer", "possessive", "reflexive"];
 const VERB_REGEX = /\{([^\{\}]+?)\/([^\{\}]+?)\}/gi;
 
 /*--Generic utility functions--*/
@@ -122,7 +122,10 @@ function populateCategories() {
     })
 
     // Needs to go at the end
-    const customOption = createOption("custom", "Custom");
+    const nounselfOption = createOption("nounself", "-Nounself-");
+    newOptions.appendChild(nounselfOption);
+
+    const customOption = createOption("custom", "-Custom-");
     newOptions.appendChild(customOption);
 
     categoriesDropdown.appendChild(newOptions);  // (Note - populateCategories is only called in onLoad so this is fine)
@@ -130,18 +133,48 @@ function populateCategories() {
 
 
 function selectCategory(category) {
+    const categoriesDropdown = document.getElementById("categories");
+    const presetDropdown = document.getElementById("presets");
+    const customFields = document.getElementById("custom");
+    
     // Show custom fields if needed
     if (category === "custom") {
-        document.getElementById("custom").style.display = "block";
+        customFields.style.display = "block";
     }
     else {
-        document.getElementById("custom").style.display = "none";
+        customFields.style.display = "none";
     }
 
-    const presetDropdown = document.getElementById("presets");
+    // Handle nounself
+    if (category === "nounself") {
+        const noun = prompt("Noun:")?.trim().toLowerCase();
+
+        if (!noun) {
+            categoriesDropdown.value = "select";
+            customFields.style.display = "none";
+            presetDropdown.style.display = "none";
+
+            return;
+        }
+
+        // Populate fields
+        document.getElementById("subjective").value = noun;
+        document.getElementById("objective").value = noun;
+        document.getElementById("possessiveDeterminer").value = noun;
+        document.getElementById("possessive").value = noun + "s";
+        document.getElementById("reflexive").value = noun + "self";
+        document.getElementById("singular").checked = true;
+
+        // Show the custom fields and hide the preset dropdown
+        categoriesDropdown.value = "custom";
+        customFields.style.display = "block";
+        presetDropdown.style.display = "none";
+
+        return;
+    }
     
     // Show preset dropdown if a category is selected
-    if (category === "custom" || category === "select") {
+    if (category === "custom" || category === "select" || category === "nounself") {
         presetDropdown.style.display = "none";
         presetDropdown.value = "select";
     }

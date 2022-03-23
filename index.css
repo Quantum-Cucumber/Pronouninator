@@ -175,6 +175,9 @@ body {
 .options__textbox::placeholder {
     font-size: 0.6em;
 }
+.options__textbox:focus {
+    border-bottom-color: var(--secondary);
+}
 
 .options__small {
     font-size: 0.7em;
