@@ -17,6 +17,14 @@
 
 <body onload="onLoad()">
     <div class="page-wrapper">
+        <div class="modal">
+            <label for="modal-input"></label>
+            <input type="text" id="modal-input">
+            <div>
+                <input type="button" value="Submit">
+                <input type="button" value="Cancel">
+            </div>
+        </div>
         <div class="options">
             <select class="dropdown" id="categories" onchange="selectCategory(this.value)">
                 <option value="select" selected hidden>--Category--</option>

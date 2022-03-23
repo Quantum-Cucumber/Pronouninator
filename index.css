@@ -161,6 +161,37 @@ body {
     margin: 0.2em 0;
 }
 
+div.modal {
+    position: absolute;
+    display: none;
+    border-radius: 0.2em;
+    min-width: 8em;
+    min-height: 4em;
+    background-color: #3A3B3C;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+div.modal label {
+    padding-left: 0.2em;
+    padding-top: 0.2em;
+    max-height: 1em;
+}
+div.modal input[type=text] {
+    margin: 0.7em 0.7em 0.7em 0.7em;
+    max-height: 1.5em;
+}
+div.modal input[type=button] {
+    margin: 0em 0.7em 0.7em 0.7em;
+    margin-left: auto;
+}
+div.modal input[type=button]:last-child {
+    margin: 0em 0.7em 0.7em 0em;
+}
+div.modal div {
+    display: flex;
+}
+
 .noun-form {
     display: flex;
     flex-direction: row;

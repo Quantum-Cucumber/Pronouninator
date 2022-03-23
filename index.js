@@ -139,7 +139,7 @@ function selectCategory(category) {
     // Show nounself form if needed
     const nounForm = document.getElementById("noun-form");
     nounForm.style.display = category === "nounself" ? null : "none";
-    
+
     // Show/populate preset dropdown if a category is selected
     const presetDropdown = document.getElementById("presets");
 
@@ -171,6 +171,39 @@ function selectCategory(category) {
 
         presetDropdown.style.display = "block";
     }
+}
+
+// Display the modal with a provided title
+function displayModal(title) {
+    const modal = document.getElementsByClassName("modal")[0];
+    // Check that the modal exists
+    if (modal == undefined) {
+        throw "ERROR: Failed to find modal";
+    }
+
+    // Set the label to the requested title
+    const label = modal.firstElementChild;
+    label.innerHTML = title;
+
+    // Make the modal appear
+    modal.style.display = "inline-grid";
+
+    // Set the input field to be focused
+    const input = modal.getElementsByTagName("input")[0];
+    input.focus();
+}
+
+// Reset the modal to it's default state with a blank label, input and hidden
+function resetModal() {
+    const modal = document.getElementsByClassName("modal")[0];
+    if (modal == undefined) {
+        throw "ERROR: Failed to find modal";
+    }
+    const label = modal.firstElementChild;
+    label.innerHTML = "";
+    const input = modal.getElementsByTagName("input")[0];
+    input.value = "";
+    modal.style.display = "none";
 }
 
 function addCustomCategory(text) {
