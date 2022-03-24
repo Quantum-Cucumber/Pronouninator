@@ -271,6 +271,7 @@ function onLoad() {
 function cleanHash(hash) {
     hash = hash.replace(/^#?\/?/, "");
     parts = hash.split("/").slice(0, 6);  // Limit to 6 - 5 pronoun types + "plural"
+    parts = parts.map(decodeURIComponent);
     return parts;
 }
 
@@ -346,7 +347,7 @@ function getUrl() {
 
     // If nounself is selected, return url based on nounself template
     if (category === "nounself") {
-        const noun = document.getElementById("noun").value;
+        const noun = encodeURIComponent(document.getElementById("noun").value);
 
         return `${baseUrl}/#/${noun}/${noun}/${noun}/${noun}s/${noun}self`;
     }
@@ -354,11 +355,11 @@ function getUrl() {
     // If category is customConfig, the pronoun set is stored in sessionstorage
     if (category === "customConfig") {
         return baseUrl + "/#" +
-            "/" + sessionStorage.getItem("subjective") +
-            "/" + sessionStorage.getItem("objective") +
-            "/" + sessionStorage.getItem("possessiveDeterminer") +
-            "/" + sessionStorage.getItem("possessive") +
-            "/" + sessionStorage.getItem("reflexive") +
+            "/" + encodeURIComponent(sessionStorage.getItem("subjective")) +
+            "/" + encodeURIComponent(sessionStorage.getItem("objective")) +
+            "/" + encodeURIComponent(sessionStorage.getItem("possessiveDeterminer")) +
+            "/" + encodeURIComponent(sessionStorage.getItem("possessive")) +
+            "/" + encodeURIComponent(sessionStorage.getItem("reflexive")) +
             (sessionStorage.getItem("singularVerbs") === "true" ? "" : "/plural")
     }
 
@@ -368,7 +369,7 @@ function getUrl() {
 
     PRONOUNFIELDS.forEach(field => {
         const value = getCustomField(field);
-        parts.push(value);
+        parts.push(encodeURIComponent(value));
     })
 
     if (document.getElementById("plural").checked) {
