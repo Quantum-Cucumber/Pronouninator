@@ -25,32 +25,34 @@
                 <option value="select" selected hidden>--Select--</option>
             </select>
 
-            <div id="noun-form" class="noun-form" style="display: none;">
-                <input class="options__textbox" type="text" id="noun" placeholder="Noun" />
-                <button class="button options__icon-button" title="Edit" onclick="nounToCustom()">
-                    <img src="res/pencil.svg" />
-                </button>
-            </div>
-            
-            <form id="custom" style="display: none;" onsubmit="submitPronouns(event)">
-                <input class="options__textbox" type="text" id="subjective" placeholder="Subjective" title="Subjective" />
-                <input class="options__textbox" type="text" id="objective" placeholder="Objective" title="Objective" />
-                <input class="options__textbox" type="text" id="possessiveDeterminer" placeholder="Possessive Determiner" title="Possessive Determiner" />
-                <input class="options__textbox" type="text" id="possessive" placeholder="Possessive" title="Possessive" />
-                <input class="options__textbox" type="text" id="reflexive" placeholder="Reflexive" title="Reflexive" />
-
-                <div class="options__small">
-                    <input type="radio" name="verbs" value="singular" class="radio" id="singular" checked />
-                    <label for="singular">Singular</label>
+            <form id="custom-form" onsubmit="submitPronouns(event)">
+                <div id="noun-form" class="noun-form" style="display: none;">
+                    <input class="options__textbox" type="text" id="noun" placeholder="Noun" />
+                    <button class="button options__icon-button" title="Edit" type="button" onclick="nounToCustom()">
+                        <img src="res/pencil.svg" />
+                    </button>
                 </div>
-                <div class="options__small">
-                    <input type="radio" name="verbs" value="plural" class="radio" id="plural" />
-                    <label for="plural">Plural</label>
+                
+                <div id="custom" style="display: none;">
+                    <input class="options__textbox" type="text" id="subjective" placeholder="Subjective" title="Subjective" />
+                    <input class="options__textbox" type="text" id="objective" placeholder="Objective" title="Objective" />
+                    <input class="options__textbox" type="text" id="possessiveDeterminer" placeholder="Possessive Determiner" title="Possessive Determiner" />
+                    <input class="options__textbox" type="text" id="possessive" placeholder="Possessive" title="Possessive" />
+                    <input class="options__textbox" type="text" id="reflexive" placeholder="Reflexive" title="Reflexive" />
+
+                    <div class="options__small">
+                        <input type="radio" name="verbs" value="singular" class="radio" id="singular" checked />
+                        <label for="singular">Singular</label>
+                    </div>
+                    <div class="options__small">
+                        <input type="radio" name="verbs" value="plural" class="radio" id="plural" />
+                        <label for="plural">Plural</label>
+                    </div>
                 </div>
             </form>
             
             <div class="options__buttons">
-                <button class="button options__buttons__use" type="submit" form="custom">Use These Pronouns!</button>
+                <button class="button options__buttons__use" type="submit" form="custom-form">Use These Pronouns!</button>
                 <button class="button options__icon-button" onclick="copyUrl()" title="Share these pronouns">
                     <img src="res/share-variant.svg" alt="Share">
                 </button>
