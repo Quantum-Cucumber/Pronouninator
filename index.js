@@ -1,6 +1,78 @@
 const PRONOUNFIELDS = ["subjective", "objective", "possessiveDeterminer", "possessive", "reflexive"];
 const VERB_REGEX = /\{([^\{\}]+?)\/([^\{\}]+?)\}/gi;
 
+class Modal {
+    constructor(title, element) {
+        this.hidden = true;
+        this.title = title;
+        if (element == undefined || !element instanceof HTMLDivElement) {
+            throw "ERROR: Failed to find modal element";
+        }
+        this.element = element;
+        this.input = element.getElementsByTagName("input")[0];
+        this.submit = element.getElementsByTagName("input")[1];
+        this.cancel = element.getElementsByTagName("input")[2];
+        this.label = element.firstElementChild;
+        this.label.innerHTML = this.title;
+        // Call hide when cancel button is pressed
+        this.cancel.addEventListener("click", _ => {
+            this.hide();
+        });
+        // Call hide when the escape key is pressed
+        this.element.addEventListener("keydown", evt => {
+            if (evt.keyCode === 27) {
+                this.hide();
+            }
+        });
+    }
+
+    /*
+     * Handle submit events
+     * Example:
+     * const modal = new Modal("Noun:", document.getElementsByClassName("modal")[0]);
+     * modal.onSubmit((evt) => {
+     *     console.log(modal.input.value);
+     * });
+    */
+    onSubmit(callback) {
+        // Call callback when submit button is pressed
+        this.submit.addEventListener("click", callback);
+        // Call callback when enter key is pressed
+        this.element.addEventListener("keydown", evt => {
+            if (evt.keyCode === 13) {
+                callback(evt);
+            }
+        });
+    }
+
+    // Display the modal with a provided title
+    display() {
+        const modal = this.element;
+        // Check that the modal exists and is a div
+        if (modal == undefined || !modal instanceof HTMLDivElement) {
+            throw "ERROR: Failed to find modal element";
+        }
+        // Set the label to the requested title
+        this.label.innerHTML = this.title;
+        // Make the modal appear
+        modal.style.display = "inline-grid";
+        // Set the input field to be focused
+        this.input.focus();
+    }
+
+    // Hide and Reset the modal to it's default state with a blank label, input and hidden
+    hide() {
+        const modal = this.element;
+        if (modal == undefined || !modal instanceof HTMLDivElement) {
+            throw "ERROR: Failed to find modal";
+        }
+        modal.style.display = "none";
+        // Doing this means that multiple Modal objects can make use of a single Modal
+        // if you wanted to
+        this.input.value = "";
+    }
+}
+
 /*--Generic utility functions--*/
 function shuffle(array) {
     /* https://stackoverflow.com/a/46545530 */
@@ -171,39 +243,6 @@ function selectCategory(category) {
 
         presetDropdown.style.display = "block";
     }
-}
-
-// Display the modal with a provided title
-function displayModal(title) {
-    const modal = document.getElementsByClassName("modal")[0];
-    // Check that the modal exists
-    if (modal == undefined) {
-        throw "ERROR: Failed to find modal";
-    }
-
-    // Set the label to the requested title
-    const label = modal.firstElementChild;
-    label.innerHTML = title;
-
-    // Make the modal appear
-    modal.style.display = "inline-grid";
-
-    // Set the input field to be focused
-    const input = modal.getElementsByTagName("input")[0];
-    input.focus();
-}
-
-// Reset the modal to it's default state with a blank label, input and hidden
-function resetModal() {
-    const modal = document.getElementsByClassName("modal")[0];
-    if (modal == undefined) {
-        throw "ERROR: Failed to find modal";
-    }
-    const label = modal.firstElementChild;
-    label.innerHTML = "";
-    const input = modal.getElementsByTagName("input")[0];
-    input.value = "";
-    modal.style.display = "none";
 }
 
 function addCustomCategory(text) {
