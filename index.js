@@ -2,6 +2,7 @@ const PRONOUNFIELDS = ["subjective", "objective", "possessiveDeterminer", "posse
 const VERB_REGEX = /\{([^\{\}]+?)\/([^\{\}]+?)\}/gi;
 
 class Modal {
+    // Element must have a label, a text input field, a button for submit and a button for cancel, in that order
     constructor(title, element) {
         this.hidden = true;
         this.title = title;
