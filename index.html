@@ -24,6 +24,13 @@
             <select class="dropdown" id="presets" style="display: none;">
                 <option value="select" selected hidden>--Select--</option>
             </select>
+
+            <div id="noun-form" class="noun-form" style="display: none;">
+                <input class="options__textbox" type="text" id="noun" placeholder="Noun" />
+                <button class="button options__icon-button" title="Edit" onclick="nounToCustom()">
+                    <img src="res/pencil.svg" />
+                </button>
+            </div>
             
             <form id="custom" style="display: none;" onsubmit="submitPronouns(event)">
                 <input class="options__textbox" type="text" id="subjective" placeholder="Subjective" title="Subjective" />
@@ -44,12 +51,11 @@
             
             <div class="options__buttons">
                 <button class="button options__buttons__use" type="submit" form="custom">Use These Pronouns!</button>
-                <button class="button options__buttons__share" onclick="copyUrl()" title="Share these pronouns">
+                <button class="button options__icon-button" onclick="copyUrl()" title="Share these pronouns">
                     <img src="res/share-variant.svg" alt="Share">
                 </button>
             </div>
             <div id="hint" class="hint"></div>
-            <div id="error" class="error"></div>
         </div>
         
         <div class="body">

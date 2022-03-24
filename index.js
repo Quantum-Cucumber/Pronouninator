@@ -131,92 +131,65 @@ function populateCategories() {
     categoriesDropdown.appendChild(newOptions);  // (Note - populateCategories is only called in onLoad so this is fine)
 }
 
-
 function selectCategory(category) {
-    const categoriesDropdown = document.getElementById("categories");
-    const presetDropdown = document.getElementById("presets");
-    const customFields = document.getElementById("custom");
-    
     // Show custom fields if needed
-    if (category === "custom") {
-        customFields.style.display = "block";
-    }
-    else {
-        customFields.style.display = "none";
-    }
-
-    // Handle nounself
-    if (category === "nounself") {
-        const noun = prompt("Noun:")?.trim().toLowerCase();
-
-        if (!noun) {
-            categoriesDropdown.value = "select";
-            customFields.style.display = "none";
-            presetDropdown.style.display = "none";
-
-            return;
-        }
-
-        // Populate fields
-        document.getElementById("subjective").value = noun;
-        document.getElementById("objective").value = noun;
-        document.getElementById("possessiveDeterminer").value = noun;
-        document.getElementById("possessive").value = noun + "s";
-        document.getElementById("reflexive").value = noun + "self";
-        document.getElementById("singular").checked = true;
-
-        // Show the custom fields and hide the preset dropdown
-        categoriesDropdown.value = "custom";
-        customFields.style.display = "block";
-        presetDropdown.style.display = "none";
-
-        return;
-    }
+    const customFields = document.getElementById("custom");
+    customFields.style.display = category === "custom" ? "block" : "none";
     
-    // Show preset dropdown if a category is selected
+    // Show nounself form if needed
+    const nounForm = document.getElementById("noun-form");
+    nounForm.style.display = category === "nounself" ? null : "none";
+    
+    // Show/populate preset dropdown if a category is selected
+    const presetDropdown = document.getElementById("presets");
+
     if (category === "custom" || category === "select" || category === "nounself") {
         presetDropdown.style.display = "none";
         presetDropdown.value = "select";
     }
     else {
+        // Create preset options
+        const presetOptions = document.createDocumentFragment();
+
+        // Create the default select option
+        const selectOption = createOption("select", "--Select--");
+        selectOption.hidden = true;
+        selectOption.selected = true;
+        presetOptions.appendChild(selectOption)
+
+        // Add presets from that category to the preset dropdown
+        for (const key in PRESETS) {
+            const preset = PRESETS[key];
+
+            if (preset.categories.indexOf(category) !== -1) {
+                const option = createOption(key, preset.name);
+                presetOptions.appendChild(option);
+            }
+        }
+
+        presetDropdown.replaceChildren(presetOptions);
+
         presetDropdown.style.display = "block";
     }
-
-    // Create preset options
-    const presetOptions = document.createDocumentFragment();
-
-    // Create the default select option
-    const selectOption = createOption("select", "--Select--");
-    selectOption.hidden = true;
-    selectOption.selected = true;
-    presetOptions.appendChild(selectOption)
-
-    // Add presets from that category to the preset dropdown
-    for (const key in PRESETS) {
-        const preset = PRESETS[key];
-
-        if (preset.categories.indexOf(category) !== -1) {
-            const option = createOption(key, preset.name);
-            presetOptions.appendChild(option);
-        }
-    }
-
-    presetDropdown.replaceChildren(presetOptions);
 }
 
-function storeCustom() {
-    /* Custom values are collapsed, stored and made visible in the dropdown */
+function addCustomCategory(text) {
     const categoryDropdown = document.getElementById("categories");
 
     // Removing existing custom config option
     categoryDropdown.querySelectorAll("option[value=customConfig]").forEach(el => el.remove());
 
     // Create custom dropdown value
-    const title = `${getCustomField("subjective")}/${getCustomField("objective")}/${getCustomField("possessive")}`;
-    const option = createOption("customConfig", title);
+    const option = createOption("customConfig", text);
     option.hidden = true;
     categoryDropdown.appendChild(option);
     categoryDropdown.value = "customConfig";
+}
+
+function storeCustom() {
+    /* Custom values are collapsed, stored and made visible in the dropdown */
+    const title = `${getCustomField("subjective")}/${getCustomField("objective")}/${getCustomField("possessive")}`;
+    addCustomCategory(title);
 
     // Hide fields
     document.getElementById("custom").style.display = "none";
@@ -228,6 +201,57 @@ function storeCustom() {
         sessionStorage.setItem(field, getCustomField(field));
     })
     sessionStorage.setItem("singularVerbs", document.getElementById("singular").checked);
+}
+
+
+/*--Nounself--*/
+function nounToCustom() {
+    const nounField = document.getElementById("noun");
+
+    // If no value provided, just focus the field
+    if (!nounField.value.trim()) {
+        nounField.focus();
+        return;
+    }
+
+    const noun = nounField.value.trim().toLowerCase();
+
+    // Populate fields
+    document.getElementById("subjective").value = noun;
+    document.getElementById("objective").value = noun;
+    document.getElementById("possessiveDeterminer").value = noun;
+    document.getElementById("possessive").value = noun + "s";
+    document.getElementById("reflexive").value = noun + "self";
+    document.getElementById("singular").checked = true;
+    
+    // Show everything needed for the custom view
+    document.getElementById("categories").value = "custom";
+    document.getElementById("custom").style.display = "block";
+    document.getElementById("noun-form").style.display = "none";
+}
+
+function storeNounself() {
+    const nounField = document.getElementById("noun");
+
+    // If no value provided, just focus the field
+    if (!nounField.value.trim()) {
+        nounField.focus();
+        return;
+    }
+
+    const noun = nounField.value.trim().toLowerCase();
+
+    sessionStorage.clear();
+    sessionStorage.setItem("subjective", noun);
+    sessionStorage.setItem("objective", noun);
+    sessionStorage.setItem("possessiveDeterminer", noun);
+    sessionStorage.setItem("possessive", noun + "s");
+    sessionStorage.setItem("reflexive", noun + "self");
+    sessionStorage.setItem("singularVerbs", true);
+
+    // Collapse form
+    document.getElementById("noun-form").style.display = "none";
+    addCustomCategory(`${uppercase(noun)}/${uppercase(noun)}self`);
 }
 
 
@@ -311,7 +335,6 @@ function getUrl() {
     /* Builds the sharable url */
 
     const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, "");
-    const parts = [];
 
     // If a preset is selected, directly use that
     const preset = document.getElementById("presets").value;
@@ -319,7 +342,30 @@ function getUrl() {
         return baseUrl + "/#/" + preset;
     }
 
+    const category = document.getElementById("categories").value;
+
+    // If nounself is selected, return url based on nounself template
+    if (category === "nounself") {
+        const noun = document.getElementById("noun").value;
+
+        return `${baseUrl}/#/${noun}/${noun}/${noun}/${noun}s/${noun}self`;
+    }
+
+    // If category is customConfig, the pronoun set is stored in sessionstorage
+    if (category === "customConfig") {
+        return baseUrl + "/#" +
+            "/" + sessionStorage.getItem("subjective") +
+            "/" + sessionStorage.getItem("objective") +
+            "/" + sessionStorage.getItem("possessiveDeterminer") +
+            "/" + sessionStorage.getItem("possessive") +
+            "/" + sessionStorage.getItem("reflexive") +
+            (sessionStorage.getItem("singularVerbs") === "true" ? "" : "/plural")
+    }
+
+    // Assume custom
     // Get each form field's value and add to the query params if a value is set
+    const parts = [];
+
     PRONOUNFIELDS.forEach(field => {
         const value = getCustomField(field);
         parts.push(value);
@@ -377,6 +423,9 @@ function submitPronouns(event) {
         if (!validateFields()) return;
 
         storeCustom();
+    }
+    else if (categoryValue === "nounself") {
+        storeNounself();
     }
     else if (presetValue in PRESETS) {
         storePreset(presetValue);

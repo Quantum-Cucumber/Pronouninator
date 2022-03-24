@@ -161,6 +161,12 @@ body {
     margin: 0.2em 0;
 }
 
+.noun-form {
+    display: flex;
+    flex-direction: row;
+    gap: 0.2em;
+}
+
 .options__textbox {
     background-color: transparent;
     color: inherit;
@@ -194,20 +200,14 @@ body {
 .options__buttons__use {
     flex: 1 1 auto;
 }
-.options__buttons__share {
-    /* TODO: Ensure this is a square */
+.options__icon-button {
     flex: none;
     padding: 0.4em;
 }
-.options__buttons__share > img {
+.options__icon-button > img {
     display: block;
     margin: auto;
     width: 100%;
-}
-
-.error {
-    color: var(--error);
-    font-size: 0.8em;
 }
 
 /* Body */
