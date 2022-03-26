@@ -83,8 +83,21 @@
     </div>
 
     <div class="footer">
-        <a class="footer__icon" href="https://github.com/Quantum-Cucumber/Pronouninator" target="none">
-            <img class="footer__icon__img" src="res/github.svg" alt="Github" title="View on Github" />
+        <button class="footer__button" onclick="toggleThemes()">
+            <img src="res/palette.svg" alt="Palette" title="Select Theme" />
+        </button>
+
+        <div id="themes" style="display: none;">
+            <button class="theme" onclick="selectTheme('default')" style="background-color: #C84B31;" title="Default"></button>
+            <button class="theme" onclick="selectTheme('peach')" style="background-color: #ED6663;" title="Peach"></button>
+            <button class="theme" onclick="selectTheme('strawberry')" style="background-color: #AD1D45;" title="Strawberry"></button>
+            <button class="theme" onclick="selectTheme('camo')" style="background-color: #616F39;" title="Camo"></button>
+            <button class="theme" onclick="selectTheme('sea')" style="background-color: #3282B8;" title="Sea"></button>
+            <button class="theme" onclick="selectTheme('grape')" style="background-color: #79018C;" title="Grape"></button>
+        </div>
+
+        <a class="footer__link" href="https://github.com/Quantum-Cucumber/Pronouninator" target="none">
+            <img src="res/github.svg" alt="Github" title="View on Github" />
         </a>
     </div>
 </body>

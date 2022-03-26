@@ -260,6 +260,12 @@ function storeNounself() {
 function onLoad() {
     /* Populate the preset dropdown/fill the pronoun fields from the url params */
 
+    // Load theme from localstorage
+    const theme = localStorage.getItem("theme");
+    if (theme) {
+        document.querySelector("body").setAttribute("data-theme", theme);
+    }
+
     populateCategories();
     // Clear any stored pronouns
     sessionStorage.clear();
@@ -708,3 +714,33 @@ function checkAnswers(form) {
         }
     }
 }
+
+
+/*--Theme--*/
+function toggleThemes() {
+    const themes = document.getElementById("themes");
+
+    if (themes.style.display) {  // display is "none" -> make visible
+        themes.style.display = null;
+
+        themes.animate(
+            {transform: ["scaleX(0)", "scaleX(1)"]},
+            {duration: 150, easing: "ease-out"}
+        )
+    }
+    else {  // display is null -> make hidden
+        const anim = themes.animate(
+            {transform: ["scaleX(1)", "scaleX(0)"]},
+            {duration: 150, easing: "ease-out"}
+        )
+        
+        anim.onfinish = () => themes.style.display = "none";
+    }
+}
+
+function selectTheme(theme) {
+    document.querySelector("body").setAttribute("data-theme", theme);
+
+    localStorage.setItem("theme", theme);
+}
+

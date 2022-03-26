@@ -3,8 +3,6 @@
 :root {
     --bg: #191919;
     --bg-secondary: #3A3B3C;
-    --primary: #2D4263;
-    --secondary: #C84B31;
     --text: #FFF;
     --success: #6DA34D;
     --error: #BB3434;
@@ -12,6 +10,38 @@
     font-size: clamp(2.5vh, 1.8rem, 5vw);  /* Honestly these values don't mean much. */
     font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Themes */
+body:not([data-theme]), body[data-theme="default"] {
+    --primary: #2D4263;
+    --secondary: #C84B31;
+}
+
+body[data-theme="peach"] {
+    --primary: #ED6663;
+    --secondary: #B52B65;
+}
+
+body[data-theme="strawberry"] {
+    --primary: #AD1D45;
+    --secondary: #83142C;
+}
+
+body[data-theme="camo"] {
+    --primary: #616F39;
+    --secondary: #3E432E;
+}
+
+body[data-theme="sea"] {
+    --primary: #3282B8;
+    --secondary: #0F4C75;
+}
+
+body[data-theme="grape"] {
+    --primary: #79018C;
+    --secondary: #4C0070;
+}
+
 
 html, body {
     margin: 0 !important;
@@ -127,10 +157,6 @@ body {
     flex: 1 1 auto;
     box-sizing: border-box;
     padding: 0.8em 2em 0.8em 1.2em;
-}
-
-.footer {
-    padding: 0.2em;
 }
 
 @media only screen and (orientation: portrait) {
@@ -354,15 +380,55 @@ body {
 }
 
 .footer {
+    display: flex;
+    gap: 0.1em;
     box-sizing: border-box;
+    padding: 0.2em;
+    overflow: auto hidden;
 }
-.footer__icon {
+.footer > * {
+    flex: none;
+}
+
+.footer__link {
     height: 1.2em;
     width: 1.2em;
     display: block;
-    float: right;
+    margin-left: auto;
 }
-.footer__icon__img {
+.footer__button {
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    cursor: pointer;
+    background-color: transparent;
+
+    height: 1.2em;
+    width: 1.2em;
+}
+.footer__button:active {
+    opacity: 0.7;
+}
+.footer__link > img, .footer__button > img {
     height: 100%;
     width: 100%;
+}
+
+#themes {
+    display: flex;
+    gap: 0.1em;
+    transform-origin: left;
+}
+.theme {
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    cursor: pointer;
+    
+    width: 1.2em;
+    height: 1.2em;
+    border-radius: 0.4em;
+}
+.theme:active {
+    opacity: 0.7;
 }
