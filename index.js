@@ -747,7 +747,7 @@ function selectTheme(theme) {
 function applyTheme(theme) {
     document.body.setAttribute("data-theme", theme);
 
-    const colour = getComputedStyle(document.body).getPropertyValue("--bg");
+    const colour = getComputedStyle(document.body).getPropertyValue("--primary");
     document.querySelector("meta[name=theme-color]").content = colour;
 }
 
