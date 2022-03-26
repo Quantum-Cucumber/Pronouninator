@@ -263,7 +263,7 @@ function onLoad() {
     // Load theme from localstorage
     const theme = localStorage.getItem("theme");
     if (theme) {
-        document.querySelector("body").setAttribute("data-theme", theme);
+        applyTheme(theme);
     }
 
     populateCategories();
@@ -739,8 +739,15 @@ function toggleThemes() {
 }
 
 function selectTheme(theme) {
-    document.querySelector("body").setAttribute("data-theme", theme);
+    applyTheme(theme);
 
     localStorage.setItem("theme", theme);
+}
+
+function applyTheme(theme) {
+    document.body.setAttribute("data-theme", theme);
+
+    const colour = getComputedStyle(document.body).getPropertyValue("--bg");
+    document.querySelector("meta[name=theme-color]").content = colour;
 }
 
