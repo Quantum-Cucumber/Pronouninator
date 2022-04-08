@@ -2,12 +2,12 @@ const PRESETS = {
     ae: {
         name: "Ae/Aer",
         set: ["ae", "aer", "aer", "aers", "aerself"],
-        categories: ["misc"],
+        categories: ["gender neutral"],
     },
     ey: {
         name: "Ey/Em",
         set: ["ey", "em", "eir", "eirs", "emself"],
-        categories: ["misc"],
+        categories: ["gender neutral"],
     },
     fae: {
         name: "Fae/Faer",
@@ -43,6 +43,16 @@ const PRESETS = {
     xe: {
         name: "Xe/Xem",
         set: ["xe", "xem", "xyr", "xyrs", "xemself"],
+        categories: ["gender neutral"],
+    },
+    zehir: {
+        name: "Ze/Hir",
+	    set: ["ze", "hir", "hir", "hirs", "hirself"],
+        categories: ["gender neutral"],
+    },
+    zezir: {
+        name: "Ze/Zir",
+        set: ["ze", "zir", "zir", "zirs", "zirself"],
         categories: ["gender neutral"],
     },
 }
