@@ -200,7 +200,7 @@ function storeCustom() {
     PRONOUNFIELDS.forEach(field => {
         sessionStorage.setItem(field, getCustomField(field));
     })
-    sessionStorage.setItem("singularVerbs", document.getElementById("singular").checked);
+    sessionStorage.setItem("pluralVerbs", document.getElementById("plural").checked);
 }
 
 
@@ -247,7 +247,7 @@ function storeNounself() {
     sessionStorage.setItem("possessiveDeterminer", noun);
     sessionStorage.setItem("possessive", noun + "s");
     sessionStorage.setItem("reflexive", noun + "self");
-    sessionStorage.setItem("singularVerbs", true);
+    sessionStorage.setItem("pluralVerbs", false);
 
     // Collapse form
     document.getElementById("noun-form").style.display = "none";
@@ -366,7 +366,7 @@ function getUrl() {
             "/" + encodeURIComponent(sessionStorage.getItem("possessiveDeterminer")) +
             "/" + encodeURIComponent(sessionStorage.getItem("possessive")) +
             "/" + encodeURIComponent(sessionStorage.getItem("reflexive")) +
-            (sessionStorage.getItem("singularVerbs") === "true" ? "" : "/plural")
+            (sessionStorage.getItem("pluralVerbs") === "true" ? "/plural" : "")
     }
 
     // Assume custom
@@ -399,10 +399,11 @@ function storePreset(preset) {
 
     sessionStorage.clear();
 
-    const values = PRESETS[preset];
-    for (const value in values) {
-        sessionStorage.setItem(value, values[value]);
+    const pronounSet = PRESETS[preset].set;
+    for (let i=0; i<PRONOUNFIELDS.length; i++) {
+        sessionStorage.setItem(PRONOUNFIELDS[i], pronounSet[i]);
     }
+    sessionStorage.setItem("pluralVerbs", !PRESETS[preset].pluralVerbs);
 }
 
 function validateFields() {
@@ -567,9 +568,9 @@ function populateExamples() {
         })
     
         // {singular/plural}
-        const isSingular = sessionStorage.getItem("singularVerbs") === "true";;
+        const isPlural = sessionStorage.getItem("pluralVerbs") === "true";
         [...sentence.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
-            sentence = sentence.replace(match, isSingular ? singular : plural);
+            sentence = sentence.replace(match, isPlural ? plural : singular);
         })
 
         sentence = uppercase(sentence);
@@ -603,9 +604,9 @@ function populatePractice() {
 
     selectPrompts().forEach((promptText, index) => {
         // Directly replace verbs text
-        const isSingular = sessionStorage.getItem("singularVerbs") === "true";
+        const isPlural = sessionStorage.getItem("pluralVerbs") === "true";
         [...promptText.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
-            promptText = promptText.replace(match, isSingular ? singular : plural);
+            promptText = promptText.replace(match, isPlural ? plural : singular);
         })
 
         const prompt = document.createDocumentFragment();
