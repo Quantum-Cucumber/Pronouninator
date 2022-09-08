@@ -2,58 +2,47 @@ const PRESETS = {
     ae: {
         name: "Ae/Aer",
         set: ["ae", "aer", "aer", "aers", "aerself"],
-        categories: ["gender neutral"],
     },
     ey: {
         name: "Ey/Em",
         set: ["ey", "em", "eir", "eirs", "emself"],
-        categories: ["gender neutral"],
     },
     fae: {
         name: "Fae/Faer",
         set: ["fae", "faer", "faer", "faers", "faerself"],
-        categories: ["mythical"],
     },
     he: {
         name: "He/Him",
         set: ["he", "him", "his", "his", "himself"],
-        categories: ["traditional"],
     },
     it: {
         name: "It/Its",
         set: ["it", "it", "its", "its", "itself"],
-        categories: ["gender neutral"],
     },
     she: {
         name: "She/Her",
         set: ["she", "her", "her", "hers", "herself"],
-        categories: ["traditional"],
     },
     they: {
         name: "They/Them",
         set: ["they", "them", "their", "theirs", "themself"],
         pluralVerbs: true,
-        categories: ["traditional", "gender neutral"],
     },
     thon: {
         name: "Thon/Thons",
         set: ["thon", "thon", "thons", "thons", "thonself"],
-        categories: ["gender neutral"],
     },
     xe: {
         name: "Xe/Xem",
         set: ["xe", "xem", "xyr", "xyrs", "xemself"],
-        categories: ["gender neutral"],
     },
     zehir: {
         name: "Ze/Hir",
 	    set: ["ze", "hir", "hir", "hirs", "hirself"],
-        categories: ["gender neutral"],
     },
     zezir: {
         name: "Ze/Zir",
         set: ["ze", "zir", "zir", "zirs", "zirself"],
-        categories: ["gender neutral"],
     },
 }
  

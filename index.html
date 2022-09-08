@@ -19,11 +19,10 @@
 <body onload="onLoad()">
     <div class="page-wrapper">
         <div class="options">
-            <select class="dropdown" id="categories" onchange="selectCategory(this.value)">
-                <option value="select" selected hidden>--Category--</option>
-            </select>
-            <select class="dropdown" id="presets" style="display: none;">
+            <select class="dropdown" id="presets" onchange="selectPreset(this.value)">
                 <option value="select" selected hidden>--Select--</option>
+                <option value="nounself" selected>--Nounself--</option>
+                <option value="custom" selected>--Custom--</option>
             </select>
 
             <form id="custom-form" onsubmit="submitPronouns(event)">

@@ -10,7 +10,6 @@ Pronoun presets are stored in [data.js](src/data.js).
         name: "They/Them",
         set: ["they", "them", "their", "theirs", "themself"],
         pluralVerbs: true,
-        categories: ["traditional", "gender neutral"],
     },
 ```
 All fields are mandatory.
@@ -18,7 +17,6 @@ All fields are mandatory.
 - The `name` field refers to how the pronoun set would be colloquially expressed, e.g. `She/Her`, or `Xe/Xem`. This should be in title case. Used in the pronoun dropdowns.
 - `set` is the full pronoun set in the form of `subjective, objective, possessive determiner, possessive, reflexive`.
 - `pluralVerbs` is a optional boolean referring to whether verbs should be made plural or not, e.g. `He *runs*` (singular) vs `They *run*` (plural). If ommited, it will be assumed that the pronoun set uses singular verbs.
-- `categories` defines which categories a set of pronouns should appear under. If you are adding a new category, please try and add multiple sets that could be placed into that category.
 - Presets should be placed in alphabetical order (by key) just for neatness.
 
 
