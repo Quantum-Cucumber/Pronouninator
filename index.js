@@ -340,7 +340,7 @@ function storePreset(preset) {
     for (let i=0; i<PRONOUNFIELDS.length; i++) {
         sessionStorage.setItem(PRONOUNFIELDS[i], pronounSet[i]);
     }
-    sessionStorage.setItem("pluralVerbs", !(PRESETS[preset].pluralVerbs | true));
+    sessionStorage.setItem("pluralVerbs", PRESETS[preset].pluralVerbs || false);
 }
 
 function validateFields() {
