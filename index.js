@@ -2,6 +2,7 @@ const PRONOUNFIELDS = ["subjective", "objective", "possessiveDeterminer", "posse
 const VERB_REGEX = /\{([^\{\}]+?)\/([^\{\}]+?)\}/gi;
 
 /*--Generic utility functions--*/
+
 function shuffle(array) {
     /* https://stackoverflow.com/a/46545530 */
     return array
@@ -329,6 +330,38 @@ function copyUrl() {
 }
 
 
+/* Name field */
+
+function showName() {
+    // Hide name button
+    const button = document.getElementById("nameButton");
+    button.style.display = "none";
+
+    // Show name field and select it
+    const nameField = document.getElementById("name");
+    nameField.style.display = null;
+    nameField.select();
+}
+
+function deselectName() {
+    const nameField = document.getElementById("name");
+
+    // If name is not blank, hide
+    if (nameField.value.trim().length === 0) {
+        hideName();
+    }
+}
+
+function hideName() {
+    // Show name button
+    const button = document.getElementById("nameButton");
+    button.style.display = null;
+
+    // Hide name field
+    const nameField = document.getElementById("name");
+    nameField.style.display = "none";
+}
+
 /*--Pronoun population--*/
 
 function storePreset(preset) {
@@ -374,7 +407,9 @@ function submitPronouns(event) {
     else if (presetValue in PRESETS) {
         storePreset(presetValue);
     }
-    else return;  // No need to repopulate
+    else return;  // No option selected - No need to populate again
+
+    sessionStorage.setItem("name", document.getElementById("name").value);
 
     // Set url for this pronoun set
     window.history.pushState({}, "", getUrl());
