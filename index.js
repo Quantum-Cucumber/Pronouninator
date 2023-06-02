@@ -505,7 +505,7 @@ function selectPrompts(maxValues = 6) {
     const categories = new Map();
 
     PROMPTS.forEach(prompt => {
-        // Get the contained types
+        // Get each of the pronoun types that each prompt contains
         const types = new Set();
         [...prompt.matchAll(/\{([a-z]+)\}/gi)].forEach(match => types.add(match[1]));
 
@@ -514,7 +514,7 @@ function selectPrompts(maxValues = 6) {
             types.add("verbs");
         }
 
-        // Add prompt to categories
+        // Map each pronoun category with the prompts it contains
         types.forEach(type => {
             if (!categories.has(type)) {
                 categories.set(type, []);
@@ -524,6 +524,7 @@ function selectPrompts(maxValues = 6) {
     })
 
     // Grab the needed number of prompts
+    
     const prompts = [];
 
     while (prompts.length < maxValues && categories.size > 0) {
