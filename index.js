@@ -222,22 +222,37 @@ function onLoad() {
     parseUrl();
 }
 
-function cleanHash(hash) {
-    hash = hash.replace(/^#?\/?/, "");
-    parts = hash.split("/").slice(0, 6);  // Limit to 6 - 5 pronoun types + "plural"
+function parseHashParts(hash) {
+    // Limit to 6 - 5 pronoun types + "plural"
+    parts = hash.split("/").slice(0, 6);
+    // Decode each part
     parts = parts.map(decodeURIComponent);
     return parts;
 }
 
 function parseUrl() {
+    // Populate name field
+    // This will fall apart if ?name= isn't at the end of the url lol
+    let name = window.location.hash.match(/\?name=(.*)/)?.[1];
+    var nameField = document.getElementById("name");
+    if (name) {
+        nameField.value = name;
+        showName(false);
+    }
+
     const presetDropdown = document.getElementById("presets");
 
-    // Gets the url to be read
-    const parts = cleanHash(window.location.hash);
-    let isPlural = false;
+    // Extract the a/b/c/d/e part
+    let pronounPartString = window.location.hash.match(/#\/([^\?]*)/)?.[1] ?? "";
 
+    const parts = parseHashParts(pronounPartString);
+    let isPlural = false;
+    
+    // 1 = preset, 5 = custom, 6 = custom w/ plural flag
     // If a preset is specified, use that
     if (parts.length === 1 && parts[0] in PRESETS) {
+        document.getElementById("presets").value = parts[0];
+
         storePreset(parts[0]);
         populate();
 
@@ -246,7 +261,7 @@ function parseUrl() {
     else if (parts.length === 6 && parts[5] === "plural") {
         isPlural = true;
     }
-    else if (parts.length !== 5) return;
+    else if (parts.length !== 5) return;  // not 1, 5 or 6 so invalid. Ignore
 
     // Fill in the form fields based on the params
     for (let i=0; i<5; i++) {
@@ -260,19 +275,24 @@ function parseUrl() {
         document.getElementById("singular").checked = true;
     }
 
-    // Set the options dropdown based on supplied values
+    /* Set the options dropdown based on supplied values */
+
     const customForm = document.getElementById("custom");
 
-    const hasFields = parts.some(p => p !== "");
+    const hasFields = parts.some(p => p !== "");  // Whether the pronoun set contains non-empty strings
     if (validateFields()) {  // All fields are supplied
         storeCustom();
         populate();
     }
+    // Only some fields are supplied
     else if (hasFields) {
+        // Show the custom fields to be filled in
         presetDropdown.value = "custom";
         customForm.style.display = "block";
     }
+    // No fields supplied
     else {
+        // Show as blank
         presetDropdown.value = "select";
         customForm.style.display = "none";
     }
@@ -282,24 +302,25 @@ function getUrl() {
     /* Builds the sharable url */
 
     const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, "");
+    var url = baseUrl + "/#/";
 
+    /* Build the body of the url based on the selected pronouns */
     // If a preset is selected, directly use that
     const preset = document.getElementById("presets").value;
     if (preset in PRESETS) {
-        return baseUrl + "/#/" + preset;
+        url += preset;
     }
 
     // If nounself is selected, return url based on nounself template
-    if (preset === "nounself") {
+    else if (preset === "nounself") {
         const noun = encodeURIComponent(document.getElementById("noun").value);
 
-        return `${baseUrl}/#/${noun}/${noun}/${noun}/${noun}s/${noun}self`;
+        url += `${noun}/${noun}/${noun}/${noun}s/${noun}self`;
     }
 
     // If preset is customConfig, the pronoun set is stored in sessionstorage
-    if (preset === "customConfig") {
-        return baseUrl + "/#" +
-            "/" + encodeURIComponent(sessionStorage.getItem("subjective")) +
+    else if (preset === "customConfig") {
+        url += encodeURIComponent(sessionStorage.getItem("subjective")) +
             "/" + encodeURIComponent(sessionStorage.getItem("objective")) +
             "/" + encodeURIComponent(sessionStorage.getItem("possessiveDeterminer")) +
             "/" + encodeURIComponent(sessionStorage.getItem("possessive")) +
@@ -308,19 +329,29 @@ function getUrl() {
     }
 
     // Assume custom
-    // Get each form field's value and add to the query params if a value is set
-    const parts = [];
+    else {
+        // Get each form field's value and add to the query params if a value is set
+        const parts = [];
 
-    PRONOUNFIELDS.forEach(field => {
-        const value = getCustomField(field);
-        parts.push(encodeURIComponent(value));
-    })
+        PRONOUNFIELDS.forEach(field => {
+            const value = getCustomField(field);
+            parts.push(encodeURIComponent(value));
+        })
 
-    if (document.getElementById("plural").checked) {
-        parts.push("plural")
+        if (document.getElementById("plural").checked) {
+            parts.push("plural")
+        }
+
+        url += parts.join("/");
     }
 
-    return baseUrl + "/#/" + parts.join("/");
+    // Add name
+    const name = sessionStorage.getItem("name");
+    if (name) {
+        url += `?name=${encodeURIComponent(name)}`
+    }
+
+    return url
 }
 
 function copyUrl() {
@@ -332,7 +363,7 @@ function copyUrl() {
 
 /* Name field */
 
-function showName() {
+function showName(select=true) {
     // Hide name button
     const button = document.getElementById("nameButton");
     button.style.display = "none";
@@ -340,7 +371,7 @@ function showName() {
     // Show name field and select it
     const nameField = document.getElementById("name");
     nameField.style.display = null;
-    nameField.select();
+    if (select) {nameField.select()};
 }
 
 function deselectName() {
