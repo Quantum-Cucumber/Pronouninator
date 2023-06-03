@@ -222,30 +222,34 @@ function onLoad() {
     parseUrl();
 }
 
-function parseHashParts(hash) {
+function parseUrlPath(path) {
+    // Strip leading/trailing slash
+    path = path.replace(/(^\/|\/$)/, "");
     // Limit to 6 - 5 pronoun types + "plural"
-    parts = hash.split("/").slice(0, 6);
+    parts = path.split("/").slice(0, 6);
     // Decode each part
     parts = parts.map(decodeURIComponent);
     return parts;
 }
 
 function parseUrl() {
+    // Warp the url to be parseable by URL()
+    let warpedUrl = new URL(window.location.href.replace("#/", ""))
+
     // Populate name field
     // This will fall apart if ?name= isn't at the end of the url lol
-    let name = window.location.hash.match(/\?name=(.*)/)?.[1];
     var nameField = document.getElementById("name");
-    if (name) {
-        nameField.value = name;
+    console.log(warpedUrl.searchParams)
+    if (warpedUrl.searchParams.has("name")) {
+        nameField.value = warpedUrl.searchParams.get("name");
         showName(false);
     }
 
     const presetDropdown = document.getElementById("presets");
 
     // Extract the a/b/c/d/e part
-    let pronounPartString = window.location.hash.match(/#\/([^\?]*)/)?.[1] ?? "";
-
-    const parts = parseHashParts(pronounPartString);
+    let pronounPartString = warpedUrl.pathname || "";
+    const parts = parseUrlPath(pronounPartString);
     let isPlural = false;
     
     // 1 = preset, 5 = custom, 6 = custom w/ plural flag
