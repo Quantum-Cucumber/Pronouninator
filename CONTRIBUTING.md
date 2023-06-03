@@ -1,16 +1,16 @@
 # Contributing
-Contributions are very welcome, but note that at this state the project is still considered to be in early development.
+Contributions are very welcome :)
 
 
 ## New Pronoun Presets
 Pronoun presets are stored in [data.js](src/data.js).
 ```js
 // Example preset:
-    they: {
-        name: "They/Them",
-        set: ["they", "them", "their", "theirs", "themself"],
-        pluralVerbs: true,
-    },
+they: {
+    name: "They/Them",
+    set: ["they", "them", "their", "theirs", "themself"],
+    pluralVerbs: true,
+},
 ```
 All fields are mandatory.
 - The key of this object is mostly arbitrary but will be used in the shareable URL. In general, this should be set to the subjective form of the pronoun.
@@ -24,7 +24,7 @@ All fields are mandatory.
 Prompts are stored in [data.js](src/data.js).
 ```js
 // Example prompt
-    "{subjective} {walks/walk} home.",
+"{subjective} {walks/walk} home."
 ```
 - Prompts should contain a singular sentence, ending with a period.
 - Prompts should only refer to one person who uses a single set of pronouns.
