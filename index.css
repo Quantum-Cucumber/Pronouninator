@@ -293,13 +293,13 @@ body {
     margin-bottom: 0.8em;
     position: relative;
 
-    animation: slide-in calc(var(--offset) * 0.1s) linear 0s;
+    animation: slide-in calc((var(--offset) + 4) * 0.04s) linear 0s;
 }
 
 @keyframes slide-in {
     0% {
         opacity: calc(var(--offset) * 0.1);
-        transform: translateX(calc(var(--offset) * 1em));
+        transform: translateX(calc(var(--offset) * 1em + 4em));
     }
     100% {
         opacity: 1;
