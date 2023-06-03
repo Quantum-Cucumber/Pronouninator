@@ -55,12 +55,12 @@ function createExampleCard(sentence, index) {
     return card;
 }
 
-function createPracticeField(type) {
+function createPracticeField(type, hint="") {
     const field = document.createElement("input");
     field.className = "card__field";
     field.title = pronounTypeToString(type);
     field.setAttribute("data-type", type);
-
+    field.placeholder = hint
 
     return field;
 }
@@ -408,7 +408,33 @@ function hideName() {
 }
 
 function storeName() {
-    sessionStorage.setItem("name", document.getElementById("name").value)
+    sessionStorage.setItem("name", document.getElementById("name").value.trim())
+}
+
+function getNameForms() {
+    const name = sessionStorage.getItem("name");
+
+    return {
+        "subjectiveName": `${name}`,
+        "objectiveName": `${name}`,
+        "possessiveDeterminerName": `${name}'s`,
+        "possessiveName": `${name}'s`,
+        "reflexiveName": `${name}`,
+    }
+}
+
+function checkNameForms(form, answer) {
+    /* Validate an answer to the name field, checking for both name' and names's */
+    /* English sucks https://www.thesaurus.com/e/grammar/whats-the-rule-for-doing-a-possessive-after-the-word-s/ */
+    const name = sessionStorage.getItem("name").toLowerCase();
+    
+    if (name.toLowerCase().endsWith("s") && (form === "possessiveDeterminerName" || form === "possessiveName")) {
+        return answer == `${name}'` || answer == `${name}'s`
+    }
+    else {
+        const nameForms = getNameForms();
+        return nameForms[form].toLowerCase() === answer;
+    }
 }
 
 /*--Pronoun population--*/
@@ -518,9 +544,14 @@ function selectTab(tab) {
     })
 }
 
-function selectPrompts(maxValues = 7) {
-    /* Selects an evenly distributed variety of prompts by the pronoun types they contain */    
+function selectPrompts(maxValues = 8) {
+    /* Selects an evenly distributed variety of prompts by the pronoun types they contain */
     const categories = new Map();
+    
+    if (sessionStorage.getItem("name")) {
+        // Prefilling with "name" will prioritise adding extra "name" fields. For 8 values this is 1 form of each pronoun and 2 with names
+        categories.set("name", [])
+    }
 
     PROMPTS.forEach(prompt => {
         // Get each of the pronoun types that each prompt contains
@@ -541,12 +572,9 @@ function selectPrompts(maxValues = 7) {
         })
 
         if (sessionStorage.getItem("name")) {
-            // If the prompt has more than one variable in it, we can use it for the name
-            if (promptVars.length > 1) {
-                var namePrompt = prompt.replace(promptVars[0][0], "{name}")
+            var namePrompt = prompt.replace(promptVars[0][0], `{${promptVars[0][1]}Name}`)
 
-                appendMap(categories, "name", namePrompt);
-            }
+            appendMap(categories, "name", namePrompt);
         }
     })
 
@@ -588,6 +616,8 @@ function populateExamples() {
     const pageDiv = document.getElementById("examples-cards");
     const cards = document.createDocumentFragment();
 
+    const nameForms = getNameForms()
+
     selectPrompts().forEach((prompt, index) => {
         let sentence = prompt;
 
@@ -603,8 +633,10 @@ function populateExamples() {
             sentence = sentence.replace(match, isPlural ? plural : singular);
         })
 
-        // {name}
-        sentence = sentence.replace("{name}", sessionStorage.getItem("name"))
+        //{xName}
+        Object.keys(nameForms).forEach(key => {
+            sentence = sentence.replace(`{${key}}`, nameForms[key])
+        })
 
         sentence = uppercase(sentence);
 
@@ -644,15 +676,31 @@ function populatePractice() {
 
         const prompt = document.createDocumentFragment();
 
+        const nameForms = getNameForms()
+
         // Split prompt before and after the pronoun variables
-        promptText.split(/(\{[a-z]+\})/i)
-        .forEach(part => {
+        let promptParts = promptText.split(/(\{[a-z]+\})/i);
+        // Remove any empty strings at the start to ensure the index is correct
+        if (promptParts[0] === "") promptParts.shift();
+
+        promptParts.forEach((part, index) => {
             const variableCheck = part.match(/\{([a-z]+)\}/i);
             // Add part as text node or field
             if (variableCheck) {
-                const field = createPracticeField(variableCheck[1]);
+                let variable = variableCheck[1];
+                let field;
+
+                if (variable in nameForms) {  // Is a name field
+                    // Hint whether this field should contain the name. Set the case appropriately
+                    field = createPracticeField(variable, index == 0 ? "Name" : "name");
+                }
+                else {
+                    field = createPracticeField(variable);
+                }
+
                 prompt.appendChild(field);
             }
+
             else {
                 const text = document.createTextNode(part);
                 prompt.appendChild(text);
@@ -699,12 +747,22 @@ function checkAnswers(form) {
     const card = form.parentElement;
     const cardButton = form.querySelector(".card__check");
 
+    const nameForms = getNameForms();
+
     // Check the result of all fields
     let result = true;
     fields.forEach(field => {
         const type = field.getAttribute("data-type");
-        const answer = sessionStorage.getItem(type);
-        const isCorrect = field.value.toLowerCase().trim() === answer;
+        const answer = field.value.toLowerCase().trim();
+        let isCorrect;
+
+        if (type in nameForms) {
+            isCorrect = checkNameForms(type, answer)
+        }
+        else {
+            // Compare answer to stored pronoun
+            isCorrect = answer === sessionStorage.getItem(type).toLowerCase();
+        }
 
         if (isCorrect) {
             // Replace with a simple span
