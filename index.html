@@ -49,12 +49,17 @@
                         <label for="plural">Plural</label>
                     </div>
                 </div>
+                
+                <input class="options__textbox" type="text" id="name" placeholder="Name" title="Name" style="display: none" onblur="deselectName()"/>
             </form>
             
             <div class="options__buttons">
                 <button class="button options__buttons__use" type="submit" form="custom-form">Use These Pronouns!</button>
                 <button class="button options__icon-button" onclick="copyUrl()" title="Share these pronouns">
                     <img src="res/share-variant.svg" alt="Share">
+                </button>
+                <button id="nameButton" class="button options__icon-button" onclick="showName()" title="Add name">
+                    <img src="res/name.svg" alt="Add name">
                 </button>
             </div>
             <div id="hint" class="hint"></div>

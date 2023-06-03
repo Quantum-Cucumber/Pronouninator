@@ -2,6 +2,7 @@ const PRONOUNFIELDS = ["subjective", "objective", "possessiveDeterminer", "posse
 const VERB_REGEX = /\{([^\{\}]+?)\/([^\{\}]+?)\}/gi;
 
 /*--Generic utility functions--*/
+
 function shuffle(array) {
     /* https://stackoverflow.com/a/46545530 */
     return array
@@ -28,6 +29,14 @@ function getCustomField(id) {
     return document.getElementById(id).value.trim().toLowerCase();
 }
 
+function appendMap(map, key, value) {
+    /* Appends value to the array of key in map, creating the key if needed */
+    if (!map.has(key)) {
+        map.set(key, []);
+    }
+    map.get(key).push(value);
+}
+
 
 /*--Element contruction--*/
 
@@ -46,12 +55,12 @@ function createExampleCard(sentence, index) {
     return card;
 }
 
-function createPracticeField(type) {
+function createPracticeField(type, hint="") {
     const field = document.createElement("input");
     field.className = "card__field";
     field.title = pronounTypeToString(type);
     field.setAttribute("data-type", type);
-
+    field.placeholder = hint
 
     return field;
 }
@@ -221,84 +230,111 @@ function onLoad() {
     parseUrl();
 }
 
-function cleanHash(hash) {
-    hash = hash.replace(/^#?\/?/, "");
-    parts = hash.split("/").slice(0, 6);  // Limit to 6 - 5 pronoun types + "plural"
+function parseUrlPath(path) {
+    // Strip leading/trailing slash
+    path = path.replace(/(^\/|\/$)/, "");
+    // Limit to 6 - 5 pronoun types + "plural"
+    parts = path.split("/").slice(0, 6);
+    // Decode each part
     parts = parts.map(decodeURIComponent);
     return parts;
 }
 
 function parseUrl() {
+    // Warp the url to be parseable by URL()
+    let warpedUrl = new URL(window.location.href.replace("#/", ""))
+
+    // Populate name field
+    // This will fall apart if ?name= isn't at the end of the url lol
+    var nameField = document.getElementById("name");
+    if (warpedUrl.searchParams.has("name")) {
+        nameField.value = warpedUrl.searchParams.get("name");
+        showName(false);
+    }
+
     const presetDropdown = document.getElementById("presets");
 
-    // Gets the url to be read
-    const parts = cleanHash(window.location.hash);
+    // Extract the a/b/c/d/e part
+    let pronounPartString = warpedUrl.pathname || "";
+    const parts = parseUrlPath(pronounPartString);
     let isPlural = false;
-
-    // If a preset is specified, use that
+    
+    // 1 = Pronoun preset
     if (parts.length === 1 && parts[0] in PRESETS) {
+        document.getElementById("presets").value = parts[0];
+
         storePreset(parts[0]);
-        populate();
+    }
+    // 5 = custom, 6 = custom with plural flag
+    else if (parts.length === 5 || parts.length === 6) {
+        // Set plural flag if 6 parts
+        if (parts.length === 6 && parts[5] === "plural") {
+            isPlural = true;
+        }
 
-        return;
-    }
-    else if (parts.length === 6 && parts[5] === "plural") {
-        isPlural = true;
-    }
-    else if (parts.length !== 5) return;
+        // Fill in the form fields based on the params
+        for (let i=0; i<5; i++) {
+            document.getElementById(PRONOUNFIELDS[i]).value = parts[i].trim().toLowerCase();
+        }
+        
+        if (isPlural) {
+            document.getElementById("plural").checked = true;
+        }
+        else {
+            document.getElementById("singular").checked = true;
+        }
+        
+        /* Set the options dropdown based on supplied values */
+        
+        const customForm = document.getElementById("custom");
 
-    // Fill in the form fields based on the params
-    for (let i=0; i<5; i++) {
-        document.getElementById(PRONOUNFIELDS[i]).value = parts[i].trim().toLowerCase();
+        const hasFields = parts.some(p => p !== "");  // Whether the pronoun set contains non-empty strings
+        if (validateFields()) {  // All fields are supplied
+            storeCustom();
+        }
+        // Only some fields are supplied
+        else if (hasFields) {
+            // Show the custom fields to be filled in
+            presetDropdown.value = "custom";
+            customForm.style.display = "block";
+        }
+        // No fields supplied
+        else {
+            // Show as blank
+            presetDropdown.value = "select";
+            customForm.style.display = "none";
+        }
     }
+    // Invalid number of options provided so don't populate prompts
+    else return;
 
-    if (isPlural) {
-        document.getElementById("plural").checked = true;
-    }
-    else {
-        document.getElementById("singular").checked = true;
-    }
-
-    // Set the options dropdown based on supplied values
-    const customForm = document.getElementById("custom");
-
-    const hasFields = parts.some(p => p !== "");
-    if (validateFields()) {  // All fields are supplied
-        storeCustom();
-        populate();
-    }
-    else if (hasFields) {
-        presetDropdown.value = "custom";
-        customForm.style.display = "block";
-    }
-    else {
-        presetDropdown.value = "select";
-        customForm.style.display = "none";
-    }
+    storeName();
+    populate();
 }
 
 function getUrl() {
     /* Builds the sharable url */
 
     const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, "");
+    var url = baseUrl + "/#/";
 
+    /* Build the body of the url based on the selected pronouns */
     // If a preset is selected, directly use that
     const preset = document.getElementById("presets").value;
     if (preset in PRESETS) {
-        return baseUrl + "/#/" + preset;
+        url += preset;
     }
 
     // If nounself is selected, return url based on nounself template
-    if (preset === "nounself") {
+    else if (preset === "nounself") {
         const noun = encodeURIComponent(document.getElementById("noun").value);
 
-        return `${baseUrl}/#/${noun}/${noun}/${noun}/${noun}s/${noun}self`;
+        url += `${noun}/${noun}/${noun}/${noun}s/${noun}self`;
     }
 
     // If preset is customConfig, the pronoun set is stored in sessionstorage
-    if (preset === "customConfig") {
-        return baseUrl + "/#" +
-            "/" + encodeURIComponent(sessionStorage.getItem("subjective")) +
+    else if (preset === "customConfig") {
+        url += encodeURIComponent(sessionStorage.getItem("subjective")) +
             "/" + encodeURIComponent(sessionStorage.getItem("objective")) +
             "/" + encodeURIComponent(sessionStorage.getItem("possessiveDeterminer")) +
             "/" + encodeURIComponent(sessionStorage.getItem("possessive")) +
@@ -307,19 +343,29 @@ function getUrl() {
     }
 
     // Assume custom
-    // Get each form field's value and add to the query params if a value is set
-    const parts = [];
+    else {
+        // Get each form field's value and add to the query params if a value is set
+        const parts = [];
 
-    PRONOUNFIELDS.forEach(field => {
-        const value = getCustomField(field);
-        parts.push(encodeURIComponent(value));
-    })
+        PRONOUNFIELDS.forEach(field => {
+            const value = getCustomField(field);
+            parts.push(encodeURIComponent(value));
+        })
 
-    if (document.getElementById("plural").checked) {
-        parts.push("plural")
+        if (document.getElementById("plural").checked) {
+            parts.push("plural")
+        }
+
+        url += parts.join("/");
     }
 
-    return baseUrl + "/#/" + parts.join("/");
+    // Add name
+    const name = sessionStorage.getItem("name");
+    if (name) {
+        url += `?name=${encodeURIComponent(name)}`
+    }
+
+    return url
 }
 
 function copyUrl() {
@@ -328,6 +374,68 @@ function copyUrl() {
     alert("Copied sharable url");
 }
 
+
+/* Name field */
+
+function showName(select=true) {
+    // Hide name button
+    const button = document.getElementById("nameButton");
+    button.style.display = "none";
+
+    // Show name field and select it
+    const nameField = document.getElementById("name");
+    nameField.style.display = null;
+    if (select) {nameField.select()};
+}
+
+function deselectName() {
+    const nameField = document.getElementById("name");
+
+    // If name is not blank, hide
+    if (nameField.value.trim().length === 0) {
+        hideName();
+    }
+}
+
+function hideName() {
+    // Show name button
+    const button = document.getElementById("nameButton");
+    button.style.display = null;
+
+    // Hide name field
+    const nameField = document.getElementById("name");
+    nameField.style.display = "none";
+}
+
+function storeName() {
+    sessionStorage.setItem("name", document.getElementById("name").value.trim())
+}
+
+function getNameForms() {
+    const name = sessionStorage.getItem("name");
+
+    return {
+        "subjectiveName": `${name}`,
+        "objectiveName": `${name}`,
+        "possessiveDeterminerName": `${name}'s`,
+        "possessiveName": `${name}'s`,
+        "reflexiveName": `${name}`,
+    }
+}
+
+function checkNameForms(form, answer) {
+    /* Validate an answer to the name field, checking for both name' and names's */
+    /* English sucks https://www.thesaurus.com/e/grammar/whats-the-rule-for-doing-a-possessive-after-the-word-s/ */
+    const name = sessionStorage.getItem("name").toLowerCase();
+    
+    if (name.toLowerCase().endsWith("s") && (form === "possessiveDeterminerName" || form === "possessiveName")) {
+        return answer == `${name}'` || answer == `${name}'s`
+    }
+    else {
+        const nameForms = getNameForms();
+        return nameForms[form].toLowerCase() === answer;
+    }
+}
 
 /*--Pronoun population--*/
 
@@ -374,7 +482,9 @@ function submitPronouns(event) {
     else if (presetValue in PRESETS) {
         storePreset(presetValue);
     }
-    else return;  // No need to repopulate
+    else return;  // No option selected - No need to populate page
+
+    storeName()
 
     // Set url for this pronoun set
     window.history.pushState({}, "", getUrl());
@@ -434,30 +544,42 @@ function selectTab(tab) {
     })
 }
 
-function selectPrompts(maxValues = 6) {
-    /* Selects an evenly distributed variety of prompts by the pronoun types they contain */    
+function selectPrompts(maxValues = 8) {
+    /* Selects an evenly distributed variety of prompts by the pronoun types they contain */
     const categories = new Map();
+    
+    if (sessionStorage.getItem("name")) {
+        // Prefilling with "name" will prioritise adding extra "name" fields. For 8 values this is 1 form of each pronoun and 2 with names
+        categories.set("name", [])
+    }
 
     PROMPTS.forEach(prompt => {
-        // Get the contained types
+        // Get each of the pronoun types that each prompt contains
         const types = new Set();
-        [...prompt.matchAll(/\{([a-z]+)\}/gi)].forEach(match => types.add(match[1]));
+        let promptVars = [...prompt.matchAll(/\{([a-z]+)\}/gi)];
+        promptVars.forEach(promptVar => {
+            types.add(promptVar[1]);
+        })
 
         // Check verbs presence
         if (VERB_REGEX.test(prompt)) {
             types.add("verbs");
         }
 
-        // Add prompt to categories
+        // Map each pronoun category with the prompts it contains
         types.forEach(type => {
-            if (!categories.has(type)) {
-                categories.set(type, []);
-            }
-            categories.get(type).push(prompt);
+            appendMap(categories, type, prompt)
         })
+
+        if (sessionStorage.getItem("name")) {
+            var namePrompt = prompt.replace(promptVars[0][0], `{${promptVars[0][1]}Name}`)
+
+            appendMap(categories, "name", namePrompt);
+        }
     })
 
     // Grab the needed number of prompts
+    
     const prompts = [];
 
     while (prompts.length < maxValues && categories.size > 0) {
@@ -494,6 +616,8 @@ function populateExamples() {
     const pageDiv = document.getElementById("examples-cards");
     const cards = document.createDocumentFragment();
 
+    const nameForms = getNameForms()
+
     selectPrompts().forEach((prompt, index) => {
         let sentence = prompt;
 
@@ -507,6 +631,11 @@ function populateExamples() {
         const isPlural = sessionStorage.getItem("pluralVerbs") === "true";
         [...sentence.matchAll(VERB_REGEX)].forEach(([match, singular, plural]) => {
             sentence = sentence.replace(match, isPlural ? plural : singular);
+        })
+
+        //{xName}
+        Object.keys(nameForms).forEach(key => {
+            sentence = sentence.replace(`{${key}}`, nameForms[key])
         })
 
         sentence = uppercase(sentence);
@@ -547,15 +676,31 @@ function populatePractice() {
 
         const prompt = document.createDocumentFragment();
 
+        const nameForms = getNameForms()
+
         // Split prompt before and after the pronoun variables
-        promptText.split(/(\{[a-z]+\})/i)
-        .forEach(part => {
+        let promptParts = promptText.split(/(\{[a-z]+\})/i);
+        // Remove any empty strings at the start to ensure the index is correct
+        if (promptParts[0] === "") promptParts.shift();
+
+        promptParts.forEach((part, index) => {
             const variableCheck = part.match(/\{([a-z]+)\}/i);
             // Add part as text node or field
             if (variableCheck) {
-                const field = createPracticeField(variableCheck[1]);
+                let variable = variableCheck[1];
+                let field;
+
+                if (variable in nameForms) {  // Is a name field
+                    // Hint whether this field should contain the name. Set the case appropriately
+                    field = createPracticeField(variable, index == 0 ? "Name" : "name");
+                }
+                else {
+                    field = createPracticeField(variable);
+                }
+
                 prompt.appendChild(field);
             }
+
             else {
                 const text = document.createTextNode(part);
                 prompt.appendChild(text);
@@ -602,12 +747,22 @@ function checkAnswers(form) {
     const card = form.parentElement;
     const cardButton = form.querySelector(".card__check");
 
+    const nameForms = getNameForms();
+
     // Check the result of all fields
     let result = true;
     fields.forEach(field => {
         const type = field.getAttribute("data-type");
-        const answer = sessionStorage.getItem(type);
-        const isCorrect = field.value.toLowerCase().trim() === answer;
+        const answer = field.value.toLowerCase().trim();
+        let isCorrect;
+
+        if (type in nameForms) {
+            isCorrect = checkNameForms(type, answer)
+        }
+        else {
+            // Compare answer to stored pronoun
+            isCorrect = answer === sessionStorage.getItem(type).toLowerCase();
+        }
 
         if (isCorrect) {
             // Replace with a simple span

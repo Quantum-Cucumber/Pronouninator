@@ -79,7 +79,7 @@ body {
     width: 100%;
 
     padding: 0.1em 1.2em 0.1em 0.2em;
-    text-overflow: clip;
+    text-overflow: ellipsis;
 
     background-image: url("res/chevron-down.svg");
     background-repeat: no-repeat;
