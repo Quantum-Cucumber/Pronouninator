@@ -51,11 +51,16 @@ const PROMPTS = [
     "{subjective} {loves/love} cats.",
     "I think {subjective} {is/are} awesome.",
     "{subjective} {has/have} cool hair.",
+    "{subjective} enjoys walking in the park.",
+    "{subjective} likes a good book.",
+    "{subjective} has a bright future.",
     
     "That belongs to {objective}.",
     "I already asked {objective} that.",
     "I saw {objective} with {possessiveDeterminer} best friend.",
     "{subjective} put {possessiveDeterminer} backpack on.",
+    "People admire {objective} for {possessiveDeterminer} talents.",
+    "Everyone loves {objective}.",
 
     "That's {possessiveDeterminer} pencil.",
     "I love {possessiveDeterminer} hair.",
@@ -71,5 +76,7 @@ const PROMPTS = [
     "{subjective} made {reflexive} a sandwich.",
     "{subjective} drew that all by {reflexive}.",
     "{subjective} bought {reflexive} a car.",
-    "{subjective} sat all by {reflexive}."
+    "{subjective} sat all by {reflexive}.",
+    "{subjective} {is/are} packing {possessiveDeterminer} bags for {possessiveDeterminer} vacation.",
+    "{subjective} plans {possessive} schedule carefully.",
 ]
