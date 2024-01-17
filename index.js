@@ -562,7 +562,7 @@ function selectPrompts(maxValues = 8) {
         })
 
         // Check verbs presence
-        if (VERB_REGEX.test(prompt)) {
+        if (prompt.match(VERB_REGEX)) {
             types.add("verbs");
         }
 
@@ -579,7 +579,7 @@ function selectPrompts(maxValues = 8) {
     })
 
     // Grab the needed number of prompts
-    
+   
     const prompts = [];
 
     while (prompts.length < maxValues && categories.size > 0) {
@@ -624,7 +624,7 @@ function populateExamples() {
         // find/replace with the pronoun fields
         PRONOUNFIELDS.forEach(field => {
             const value = sessionStorage.getItem(field);
-            sentence = sentence.replace(`{${field}}`, value);
+            sentence = sentence.replaceAll(`{${field}}`, value);
         })
     
         // {singular/plural}
